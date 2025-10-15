@@ -1,0 +1,17 @@
+{
+  "donations": {
+    "polygon": null,
+    "amoy": null,
+    "localhost": null
+  },
+  "spheToken": {
+    "polygon": "0x059cf53146E980321e7E1EEF43bb5Fe51BB6565b",
+    "amoy": null,
+    "localhost": null
+  },
+  "treasury": {
+    "polygon": "0xa1052872c755B5B2192b54ABD5F08546eeE6aa20",
+    "amoy": null,
+    "localhost": null
+  }
+}

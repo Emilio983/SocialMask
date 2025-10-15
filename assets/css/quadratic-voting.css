@@ -1,0 +1,563 @@
+/* ============================================
+   QUADRATIC VOTING STYLES
+   ============================================ */
+
+/* Vote Power Display */
+.vote-power-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+}
+
+.power-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.power-item {
+    text-align: center;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.power-item.quadratic {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.power-item .label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.power-item .value {
+    font-size: 32px;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.power-arrow {
+    font-size: 32px;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.power-info {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 16px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.power-info i {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.power-benefits {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.power-benefits h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+}
+
+.power-benefits ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.power-benefits li {
+    padding: 8px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.power-benefits li strong {
+    opacity: 1;
+}
+
+/* Quadratic Proposals */
+#quadratic-proposals {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 24px;
+}
+
+.quadratic-proposal {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.quadratic-proposal:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.proposal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.proposal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #111827;
+    flex: 1;
+}
+
+.proposal-id {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #3730a3;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.description {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+/* Voting Results */
+.voting-results {
+    margin-bottom: 24px;
+}
+
+.result-bars {
+    display: flex;
+    gap: 4px;
+    height: 50px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.result-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+    position: relative;
+}
+
+.result-bar.for {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.result-bar.against {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.bar-label {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.result-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.stat i {
+    color: #9ca3af;
+}
+
+/* Vote Actions */
+.vote-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.btn-vote {
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-vote.for {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.btn-vote.against {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.btn-vote.abstain {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+.btn-vote:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.vote-preview {
+    background: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.vote-preview i {
+    color: #667eea;
+}
+
+.vote-preview strong {
+    color: #667eea;
+    font-size: 15px;
+}
+
+.voted-badge {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    padding: 14px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.btn-details {
+    width: 100%;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    color: #6b7280;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-details:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Comparison Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content-comparison {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-content-comparison .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 32px;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-content-comparison .close:hover {
+    color: #111827;
+}
+
+.modal-content-comparison h2 {
+    margin: 0 0 30px 0;
+    color: #111827;
+}
+
+.comparison-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    text-align: center;
+    padding: 24px 32px;
+    border-radius: 12px;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+}
+
+.stat-box.highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.stat-label {
+    font-size: 14px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.stat-box.highlight .stat-label {
+    opacity: 1;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.stat-note {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.stat-arrow {
+    font-size: 28px;
+    color: #9ca3af;
+}
+
+.holder-breakdown {
+    margin-top: 40px;
+}
+
+.holder-breakdown h3 {
+    margin: 0 0 20px 0;
+    color: #111827;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.comparison-table th {
+    background: #f9fafb;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.comparison-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.comparison-table td.positive {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.comparison-table td.negative {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Loader */
+.loader-overlay {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.loader-overlay i {
+    font-size: 24px;
+    color: #667eea;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: -400px;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10001;
+    transition: right 0.3s ease;
+    max-width: 400px;
+}
+
+.notification.show {
+    right: 20px;
+}
+
+.notification-success {
+    border-left: 4px solid #10b981;
+}
+
+.notification-success i {
+    color: #10b981;
+    font-size: 24px;
+}
+
+.notification-error {
+    border-left: 4px solid #ef4444;
+}
+
+.notification-error i {
+    color: #ef4444;
+    font-size: 24px;
+}
+
+.notification span {
+    flex: 1;
+    font-size: 14px;
+    color: #111827;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #quadratic-proposals {
+        grid-template-columns: 1fr;
+    }
+    
+    .power-comparison {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .power-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .vote-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .stat-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .modal-content-comparison {
+        padding: 30px 20px;
+    }
+    
+    .comparison-table {
+        font-size: 12px;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 10px 8px;
+    }
+}
+
+/* No Proposals */
+.no-proposals {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.no-proposals i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-proposals p {
+    font-size: 18px;
+    margin: 0;
+}

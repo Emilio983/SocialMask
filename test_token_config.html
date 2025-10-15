@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Multi-Token Configuration System - FASE 3.1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .test-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .test-card h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-badge.warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-badge.info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #363;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        .donation-calculator {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .calculator-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .calculator-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .token-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .token-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .token-option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .token-option.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .token-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .token-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .token-info {
+            flex: 1;
+        }
+
+        .token-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .token-details {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🪙 Multi-Token Configuration System</h1>
+            <p class="subtitle">FASE 3.1 - Sistema de Configuración Flexible de Tokens para Donaciones</p>
+            <p class="subtitle">Actualmente: Solo SPHE | Futuro: Polygon, Custom Token (cambio en .env)</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="test-card loading">
+            <div>⏳ Cargando configuración de tokens...</div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-container" style="display: none;"></div>
+
+        <!-- Main Content -->
+        <div id="content" style="display: none;">
+            <!-- Test Grid -->
+            <div class="test-grid">
+                <!-- Active Token Card -->
+                <div class="test-card">
+                    <h2>🎯 Token Activo</h2>
+                    <div id="active-token-info"></div>
+                </div>
+
+                <!-- Donation Settings Card -->
+                <div class="test-card">
+                    <h2>⚙️ Configuración de Donaciones</h2>
+                    <div id="donation-settings-info"></div>
+                </div>
+
+                <!-- Validation Card -->
+                <div class="test-card">
+                    <h2>✅ Validación de Configuración</h2>
+                    <div id="validation-info"></div>
+                </div>
+
+                <!-- Token Stats Card -->
+                <div class="test-card">
+                    <h2>📊 Estadísticas de Tokens</h2>
+                    <div id="stats-info"></div>
+                </div>
+            </div>
+
+            <!-- Donation Calculator -->
+            <div class="test-card">
+                <h2>🧮 Calculadora de Donaciones</h2>
+                <div class="donation-calculator">
+                    <label for="donation-amount" style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        Monto de Donación:
+                    </label>
+                    <input 
+                        type="number" 
+                        id="donation-amount" 
+                        class="calculator-input" 
+                        placeholder="Ingresa el monto (ej: 10.50)" 
+                        min="0" 
+                        step="0.01"
+                    >
+                    <div id="calculator-result"></div>
+                </div>
+            </div>
+
+            <!-- Available Tokens -->
+            <div class="test-card">
+                <h2>💎 Tokens Disponibles</h2>
+                <p style="color: #666; margin-bottom: 15px;">
+                    Para cambiar de token, modifica DONATIONS_ACTIVE_TOKEN en el archivo .env
+                </p>
+                <div id="token-list"></div>
+            </div>
+
+            <!-- Raw JSON Response -->
+            <div class="test-card">
+                <h2>📄 Respuesta JSON Completa</h2>
+                <div id="raw-json" class="code-block"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tokenData = null;
+        let tokenManager = {
+            calculateFee: (amount, feePercentage) => amount * (feePercentage / 100),
+            calculateNetAmount: (amount, fee) => amount - fee,
+            formatAmount: (amount, symbol) => `${amount.toFixed(2)} ${symbol}`,
+            fromWei: (weiAmount, decimals) => {
+                return parseFloat(weiAmount) / Math.pow(10, decimals);
+            },
+            toWei: (amount, decimals) => {
+                return Math.floor(amount * Math.pow(10, decimals)).toString();
+            }
+        };
+
+        // Fetch token configuration
+        async function loadTokenConfig() {
+            try {
+                const response = await fetch('/api/donations/token-config.php');
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load token configuration');
+                }
+
+                tokenData = data.data;
+                renderContent();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading token config:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-container').style.display = 'block';
+                document.getElementById('error-container').innerHTML = `
+                    <div class="test-card">
+                        <div class="error-message">
+                            <strong>❌ Error al cargar configuración</strong><br>
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Render all content
+        function renderContent() {
+            renderActiveToken();
+            renderDonationSettings();
+            renderValidation();
+            renderStats();
+            renderTokenList();
+            renderRawJson();
+            setupCalculator();
+        }
+
+        // Render active token info
+        function renderActiveToken() {
+            const token = tokenData.token;
+            const html = `
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">${token.name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Símbolo:</span>
+                    <span class="info-value"><strong>${token.symbol}</strong></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dirección:</span>
+                    <span class="info-value">${token.address || 'No configurada'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Blockchain:</span>
+                    <span class="info-value">${token.blockchain} (Chain ID: ${token.chainId})</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Decimales:</span>
+                    <span class="info-value">${token.decimals}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Donación Mínima:</span>
+                    <span class="info-value">${token.minDonation} ${token.symbol}</span>
+                </div>
+                ${token.explorerUrl ? `
+                    <div class="btn-group">
+                        <a href="${token.explorerUrl}/address/${token.address}" target="_blank" class="btn">
+                            Ver en Explorador
+                        </a>
+                    </div>
+                ` : ''}
+            `;
+            document.getElementById('active-token-info').innerHTML = html;
+        }
+
+        // Render donation settings
+        function renderDonationSettings() {
+            const settings = tokenData.donationSettings;
+            const html = `
+                <div class="info-row">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value">
+                        <span class="status-badge ${settings.enabled ? 'success' : 'error'}">
+                            ${settings.enabled ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Comisión de Plataforma:</span>
+                    <span class="info-value">${settings.feePercentage}%</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Donaciones Anónimas:</span>
+                    <span class="info-value">${settings.allowAnonymous ? '✅ Permitidas' : '❌ No permitidas'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tracking en MySQL:</span>
+                    <span class="info-value">${settings.trackInDb ? '✅ Activo' : '❌ Inactivo'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tracking en Gun.js:</span>
+                    <span class="info-value">${settings.trackInGunjs ? '✅ Activo' : '❌ Inactivo'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Leaderboard:</span>
+                    <span class="info-value">${settings.leaderboardEnabled ? '✅ Activo' : '❌ Inactivo'}</span>
+                </div>
+            `;
+            document.getElementById('donation-settings-info').innerHTML = html;
+        }
+
+        // Render validation
+        function renderValidation() {
+            const validation = tokenData.validation;
+            let html = '';
+
+            if (validation.valid) {
+                html = `
+                    <div class="success-message">
+                        <strong>✅ Configuración Válida</strong><br>
+                        Todos los parámetros del token están correctamente configurados.
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="error-message">
+                        <strong>❌ Errores de Configuración</strong><br>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            ${validation.errors.map(err => `<li>${err}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            document.getElementById('validation-info').innerHTML = html;
+        }
+
+        // Render stats
+        function renderStats() {
+            const stats = tokenData.stats;
+            const html = `
+                <div class="info-row">
+                    <span class="info-label">Token Activo:</span>
+                    <span class="info-value">
+                        <span class="status-badge info">${stats.activeToken.toUpperCase()}</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tokens Configurados:</span>
+                    <span class="info-value">${stats.totalConfigured} / ${stats.configured.length + stats.notConfigured.length}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Configurados:</span>
+                    <span class="info-value">${stats.configured.join(', ').toUpperCase() || 'Ninguno'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">No Configurados:</span>
+                    <span class="info-value">${stats.notConfigured.join(', ').toUpperCase() || 'Ninguno'}</span>
+                </div>
+            `;
+            document.getElementById('stats-info').innerHTML = html;
+        }
+
+        // Render token list
+        function renderTokenList() {
+            const activeToken = tokenData.stats.activeToken;
+            const configured = tokenData.stats.configured;
+            const notConfigured = tokenData.stats.notConfigured;
+
+            const tokens = [
+                { name: 'sphe', label: 'SPHE Token', description: 'Token principal de TheSocialMask' },
+                { name: 'polygon', label: 'Polygon (MATIC)', description: 'Token nativo de Polygon' },
+                { name: 'custom', label: 'Custom Token', description: 'Token personalizado configurable' }
+            ];
+
+            const html = tokens.map(token => {
+                const isActive = token.name === activeToken;
+                const isConfigured = configured.includes(token.name);
+                const classes = `token-option ${isActive ? 'active' : ''} ${!isConfigured ? 'disabled' : ''}`;
+
+                return `
+                    <div class="${classes}">
+                        <div class="token-icon">${token.label.charAt(0)}</div>
+                        <div class="token-info">
+                            <div class="token-name">
+                                ${token.label}
+                                ${isActive ? '<span class="status-badge success" style="margin-left: 10px;">Activo</span>' : ''}
+                                ${!isConfigured ? '<span class="status-badge warning" style="margin-left: 10px;">No Configurado</span>' : ''}
+                            </div>
+                            <div class="token-details">${token.description}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('token-list').innerHTML = html;
+        }
+
+        // Render raw JSON
+        function renderRawJson() {
+            const json = JSON.stringify(tokenData, null, 2);
+            document.getElementById('raw-json').textContent = json;
+        }
+
+        // Setup donation calculator
+        function setupCalculator() {
+            const input = document.getElementById('donation-amount');
+            const resultDiv = document.getElementById('calculator-result');
+
+            input.addEventListener('input', () => {
+                const amount = parseFloat(input.value) || 0;
+                if (amount <= 0) {
+                    resultDiv.innerHTML = '';
+                    return;
+                }
+
+                const token = tokenData.token;
+                const settings = tokenData.donationSettings;
+
+                const fee = tokenManager.calculateFee(amount, settings.feePercentage);
+                const netAmount = tokenManager.calculateNetAmount(amount, fee);
+                const isValid = amount >= token.minDonation;
+
+                const html = `
+                    <div class="calculator-result">
+                        <h3 style="margin-bottom: 15px; color: #333;">Resumen de Donación</h3>
+                        
+                        ${!isValid ? `
+                            <div class="error-message">
+                                ⚠️ Monto mínimo requerido: ${token.minDonation} ${token.symbol}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="info-row">
+                            <span class="info-label">Monto Total:</span>
+                            <span class="info-value">${tokenManager.formatAmount(amount, token.symbol)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Comisión Plataforma (${settings.feePercentage}%):</span>
+                            <span class="info-value">${tokenManager.formatAmount(fee, token.symbol)}</span>
+                        </div>
+                        <div class="info-row" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                            <span class="info-label"><strong>Recibirá el Creador:</strong></span>
+                            <span class="info-value"><strong>${tokenManager.formatAmount(netAmount, token.symbol)}</strong></span>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <strong style="display: block; margin-bottom: 8px;">Conversión Wei:</strong>
+                            <div style="font-size: 12px; color: #666; font-family: 'Courier New', monospace;">
+                                ${tokenManager.toWei(amount, token.decimals)} wei
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                resultDiv.innerHTML = html;
+            });
+
+            // Set default value
+            input.value = tokenData.token.minDonation;
+            input.dispatchEvent(new Event('input'));
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadTokenConfig);
+    </script>
+</body>
+</html>

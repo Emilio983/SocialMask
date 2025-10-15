@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick P2P Check</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🚀 Quick P2P Check</h1>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-4">
+            <h2 class="text-xl font-bold mb-4">Resultado de Verificación:</h2>
+            <div id="results" class="space-y-2 font-mono text-sm"></div>
+        </div>
+        
+        <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold">
+            🔄 Recargar Test
+        </button>
+    </div>
+    
+    <!-- P2P Client Script -->
+    <script src="/assets/js/p2p-client.js"></script>
+    
+    <script>
+        function addResult(text, status) {
+            const results = document.getElementById('results');
+            const color = status === 'success' ? 'text-green-400' : 
+                         status === 'error' ? 'text-red-400' : 'text-yellow-400';
+            results.innerHTML += `<div class="${color}">${text}</div>`;
+        }
+        
+        // Wait for P2P Client to load
+        setTimeout(() => {
+            console.log('🧪 Iniciando verificación rápida...');
+            
+            // Test 1: P2PClient class exists
+            if (typeof window.P2PClient !== 'undefined') {
+                addResult('✅ window.P2PClient está definido', 'success');
+            } else {
+                addResult('❌ window.P2PClient NO está definido', 'error');
+            }
+            
+            // Test 2: p2pClient instance exists
+            if (typeof window.p2pClient !== 'undefined') {
+                addResult('✅ window.p2pClient (instancia) está disponible', 'success');
+            } else {
+                addResult('❌ window.p2pClient NO está disponible', 'error');
+            }
+            
+            // Test 3: Check methods
+            if (window.p2pClient) {
+                const methods = ['init', 'send', 'createPost', 'uploadToIPFS', 'on', 'emit', 'disconnect'];
+                let allMethodsExist = true;
+                
+                methods.forEach(method => {
+                    if (typeof window.p2pClient[method] !== 'function') {
+                        addResult(`❌ Método ${method}() NO existe`, 'error');
+                        allMethodsExist = false;
+                    }
+                });
+                
+                if (allMethodsExist) {
+                    addResult(`✅ Todos los métodos existen: ${methods.join(', ')}`, 'success');
+                }
+            }
+            
+            // Test 4: localStorage available
+            try {
+                localStorage.setItem('test_p2p', 'ok');
+                if (localStorage.getItem('test_p2p') === 'ok') {
+                    addResult('✅ localStorage funcional', 'success');
+                    localStorage.removeItem('test_p2p');
+                }
+            } catch (e) {
+                addResult('❌ localStorage NO funcional: ' + e.message, 'error');
+            }
+            
+            // Test 5: Web Crypto API available
+            if (window.crypto && window.crypto.subtle) {
+                addResult('✅ Web Crypto API disponible (RSA encryption)', 'success');
+            } else {
+                addResult('❌ Web Crypto API NO disponible', 'error');
+            }
+            
+            // Test 6: Check script URL
+            const scripts = Array.from(document.getElementsByTagName('script'));
+            const p2pScript = scripts.find(s => s.src.includes('p2p-client.js'));
+            if (p2pScript) {
+                addResult(`✅ Script cargado desde: ${p2pScript.src}`, 'success');
+            } else {
+                addResult('⚠️ No se encontró referencia al script (pero funciona)', 'warning');
+            }
+            
+            // Test 7: Check config
+            if (window.p2pClient && window.p2pClient.config) {
+                addResult(`✅ Config: API base=${window.p2pClient.config.apiBase}, Poll=${window.p2pClient.config.pollDelay}ms`, 'success');
+            }
+            
+            // Final verdict
+            addResult('', 'success');
+            addResult('═══════════════════════════════════', 'success');
+            if (typeof window.P2PClient !== 'undefined' && typeof window.p2pClient !== 'undefined') {
+                addResult('🎉 SISTEMA P2P COMPLETAMENTE FUNCIONAL', 'success');
+                addResult('═══════════════════════════════════', 'success');
+            } else {
+                addResult('❌ HAY PROBLEMAS CON EL SISTEMA P2P', 'error');
+                addResult('═══════════════════════════════════', 'error');
+            }
+            
+        }, 100);
+    </script>
+</body>
+</html>

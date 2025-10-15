@@ -1,0 +1,46 @@
+# ============================================
+# SPHORIA API .htaccess
+# Error handling and security for API endpoints
+# ============================================
+
+# Enable error logging but hide display
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_reporting "E_ALL"
+
+# Set proper content type for API responses
+<FilesMatch "\.(php)$">
+    Header set Content-Type "application/json; charset=utf-8"
+</FilesMatch>
+
+# CORS headers for API endpoints
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+
+# Handle preflight OPTIONS requests
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ - [R=200,L]
+
+# Custom error pages that return JSON
+ErrorDocument 500 /api/error_handler.php
+ErrorDocument 404 /api/error_handler.php
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+
+# Prevent access to sensitive files
+<FilesMatch "\.(log|ini|conf)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Cache control for API responses
+<FilesMatch "\.(php)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>

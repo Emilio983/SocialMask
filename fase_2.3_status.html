@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ FASE 2.3 - Status Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white min-h-screen">
+    <div class="max-w-7xl mx-auto p-8">
+        <!-- Header -->
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold mb-4">✅ FASE 2.3 STATUS</h1>
+            <p class="text-xl text-gray-300">Frontend Gun.js Client - Sistema de Verificación</p>
+            <div class="mt-4 inline-block px-6 py-3 bg-green-600 rounded-full text-white font-semibold">
+                📊 Progreso: 63.75% (62.5% → 63.75%)
+            </div>
+        </header>
+
+        <!-- Status Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Gun.js Relay -->
+            <div class="bg-gray-800/50 backdrop-blur p-6 rounded-xl border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">Gun.js Relay</h3>
+                    <div id="relay-status" class="w-4 h-4 rounded-full bg-yellow-500 pulse"></div>
+                </div>
+                <div id="relay-info" class="text-sm text-gray-400">
+                    Verificando...
+                </div>
+                <button onclick="checkRelay()" class="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    Verificar Ahora
+                </button>
+            </div>
+
+            <!-- PHP Server -->
+            <div class="bg-gray-800/50 backdrop-blur p-6 rounded-xl border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">PHP Server</h3>
+                    <div id="php-status" class="w-4 h-4 rounded-full bg-yellow-500 pulse"></div>
+                </div>
+                <div id="php-info" class="text-sm text-gray-400">
+                    Verificando...
+                </div>
+                <button onclick="checkPHP()" class="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    Verificar Ahora
+                </button>
+            </div>
+
+            <!-- Gun.js Client -->
+            <div class="bg-gray-800/50 backdrop-blur p-6 rounded-xl border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">Gun.js Client</h3>
+                    <div id="client-status" class="w-4 h-4 rounded-full bg-yellow-500 pulse"></div>
+                </div>
+                <div id="client-info" class="text-sm text-gray-400">
+                    Verificando...
+                </div>
+                <button onclick="checkClient()" class="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    Verificar Ahora
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="bg-gray-800/50 backdrop-blur p-8 rounded-xl border border-gray-700 mb-8">
+            <h2 class="text-2xl font-bold mb-6">🚀 Quick Actions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="quick_test_gunjs.html" target="_blank" class="block p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-center transition-colors">
+                    <div class="text-3xl mb-2">⚡</div>
+                    <div class="font-semibold">Quick Test</div>
+                    <div class="text-sm text-blue-200">Test rápido de funcionalidad</div>
+                </a>
+                <a href="test_gunjs_frontend.html" target="_blank" class="block p-4 bg-green-600 hover:bg-green-700 rounded-lg text-center transition-colors">
+                    <div class="text-3xl mb-2">🧪</div>
+                    <div class="font-semibold">Full Test Suite</div>
+                    <div class="text-sm text-green-200">Batería completa de tests</div>
+                </a>
+                <a href="/pages/dashboard" target="_blank" class="block p-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-center transition-colors">
+                    <div class="text-3xl mb-2">📊</div>
+                    <div class="font-semibold">Dashboard</div>
+                    <div class="text-sm text-purple-200">Test integración real</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Test Logs -->
+        <section class="bg-gray-800/50 backdrop-blur p-8 rounded-xl border border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📋 Test Logs</h2>
+                <button onclick="clearLogs()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors">
+                    Limpiar
+                </button>
+            </div>
+            <div id="logs" class="space-y-2 max-h-96 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-500 text-center py-4">Ejecuta alguna verificación para ver logs...</div>
+            </div>
+        </section>
+
+        <!-- File Checklist -->
+        <section class="bg-gray-800/50 backdrop-blur p-8 rounded-xl border border-gray-700 mt-8">
+            <h2 class="text-2xl font-bold mb-6">📁 Archivos Creados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">gun-client.js</div>
+                        <div class="text-sm text-gray-400">assets/js/ (320 líneas)</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">p2p-toggle.php</div>
+                        <div class="text-sm text-gray-400">components/ (~250 líneas)</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">scripts.php</div>
+                        <div class="text-sm text-gray-400">components/ (~30 líneas)</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">test_gunjs_frontend.html</div>
+                        <div class="text-sm text-gray-400">root/ (350 líneas)</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">quick_test_gunjs.html</div>
+                        <div class="text-sm text-gray-400">root/ (100 líneas)</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <div class="font-semibold">Documentación</div>
+                        <div class="text-sm text-gray-400">3 archivos MD</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Gun.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="assets/js/gun-client.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                success: 'text-green-400 border-green-500',
+                error: 'text-red-400 border-red-500',
+                info: 'text-blue-400 border-blue-500',
+                warning: 'text-yellow-400 border-yellow-500'
+            };
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: '📌',
+                warning: '⚠️'
+            };
+
+            const entry = document.createElement('div');
+            entry.className = `${colors[type]} border-l-4 pl-4 py-2`;
+            entry.textContent = `${icons[type]} [${timestamp}] ${message}`;
+            
+            if (logsDiv.querySelector('.text-gray-500')) {
+                logsDiv.innerHTML = '';
+            }
+            
+            logsDiv.insertBefore(entry, logsDiv.firstChild);
+        }
+
+        function updateStatus(elementId, status) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-red-500', 'pulse');
+            
+            if (status === 'ok') {
+                el.classList.add('bg-green-500');
+            } else if (status === 'error') {
+                el.classList.add('bg-red-500');
+            } else {
+                el.classList.add('bg-yellow-500', 'pulse');
+            }
+        }
+
+        async function checkRelay() {
+            log('Verificando Gun.js relay...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8765/health');
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    updateStatus('relay-status', 'ok');
+                    document.getElementById('relay-info').innerHTML = `
+                        <div class="text-green-400">✅ Activo</div>
+                        <div class="text-xs mt-2">Puerto: ${data.port}</div>
+                        <div class="text-xs">Uptime: ${Math.floor(data.uptime)}s</div>
+                        <div class="text-xs">Peers: ${data.peers || 0}</div>
+                    `;
+                    log('Gun.js relay funcionando correctamente', 'success');
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                updateStatus('relay-status', 'error');
+                document.getElementById('relay-info').innerHTML = `
+                    <div class="text-red-400">❌ No disponible</div>
+                    <div class="text-xs mt-2">Error: ${error.message}</div>
+                    <div class="text-xs mt-2">Ejecuta: npm run gun</div>
+                `;
+                log('Gun.js relay no está disponible', 'error');
+            }
+        }
+
+        async function checkPHP() {
+            log('Verificando servidor PHP...', 'info');
+            
+            try {
+                const response = await fetch('/quick_test_gunjs.html');
+                
+                if (response.ok) {
+                    updateStatus('php-status', 'ok');
+                    document.getElementById('php-info').innerHTML = `
+                        <div class="text-green-400">✅ Activo</div>
+                        <div class="text-xs mt-2">Puerto: 8000</div>
+                        <div class="text-xs">Status: ${response.status} ${response.statusText}</div>
+                    `;
+                    log('Servidor PHP funcionando correctamente', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('php-status', 'error');
+                document.getElementById('php-info').innerHTML = `
+                    <div class="text-red-400">❌ No disponible</div>
+                    <div class="text-xs mt-2">Error: ${error.message}</div>
+                    <div class="text-xs mt-2">Ejecuta: php -S localhost:8000</div>
+                `;
+                log('Servidor PHP no está disponible', 'error');
+            }
+        }
+
+        async function checkClient() {
+            log('Verificando Gun.js client...', 'info');
+            
+            try {
+                if (typeof Gun === 'undefined') {
+                    throw new Error('Gun.js no está cargado');
+                }
+                
+                if (typeof gunClient === 'undefined') {
+                    throw new Error('gunClient no está disponible');
+                }
+                
+                log('Conectando a Gun.js...', 'info');
+                const success = await gunClient.init('http://localhost:8765/gun');
+                
+                if (success) {
+                    updateStatus('client-status', 'ok');
+                    document.getElementById('client-info').innerHTML = `
+                        <div class="text-green-400">✅ Funcional</div>
+                        <div class="text-xs mt-2">Estado: Conectado</div>
+                        <div class="text-xs">Gun.js: Cargado</div>
+                        <div class="text-xs">gunClient: Inicializado</div>
+                    `;
+                    log('Gun.js client funcionando correctamente', 'success');
+                } else {
+                    throw new Error('No se pudo conectar al relay');
+                }
+            } catch (error) {
+                updateStatus('client-status', 'error');
+                document.getElementById('client-info').innerHTML = `
+                    <div class="text-red-400">❌ Error</div>
+                    <div class="text-xs mt-2">Error: ${error.message}</div>
+                `;
+                log(`Error en Gun.js client: ${error.message}`, 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '<div class="text-gray-500 text-center py-4">Ejecuta alguna verificación para ver logs...</div>';
+        }
+
+        // Auto-verificar al cargar
+        window.addEventListener('load', async () => {
+            log('Iniciando verificaciones automáticas...', 'info');
+            await checkRelay();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await checkPHP();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await checkClient();
+            log('Verificaciones completadas', 'success');
+        });
+    </script>
+</body>
+</html>

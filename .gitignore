@@ -1,0 +1,222 @@
+# ============================================
+# TheSocialMask - .gitignore
+# PROTECCIÓN MÁXIMA CONTRA FILTRACIÓN DE DATOS
+# ============================================
+
+# ==========================================
+# ARCHIVOS DE CONFIGURACIÓN SENSIBLES
+# ==========================================
+.env
+.env.*
+!.env.example
+*.env
+config.local.php
+config.production.php
+secrets.json
+credentials.json
+
+# ==========================================
+# KEYS Y CERTIFICADOS
+# ==========================================
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.crt
+*.cer
+*.der
+*.csr
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+*.ppk
+*.pub
+
+# ==========================================
+# ARCHIVOS DE BASE DE DATOS
+# ==========================================
+*.sql
+*.sqlite
+*.db
+*.mdb
+*.dump
+database_backup*
+db_backup*
+backup_*.sql
+*.sql.gz
+*.sql.zip
+
+# ==========================================
+# LOGS Y DEBUG
+# ==========================================
+*.log
+logs/
+*.log.*
+debug.log
+error.log
+access.log
+php_errors.log
+debug_errors.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# ==========================================
+# DEPENDENCIAS
+# ==========================================
+node_modules/
+vendor/
+bower_components/
+jspm_packages/
+composer.phar
+
+# ==========================================
+# ARCHIVOS DE SISTEMA
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# ==========================================
+# ARCHIVOS TEMPORALES
+# ==========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*.old
+*.orig
+*_backup
+*_old
+.cache/
+
+# ==========================================
+# UPLOADS Y CONTENIDO DE USUARIO
+# ==========================================
+uploads/
+user_uploads/
+media/uploads/
+public/uploads/
+storage/
+
+# ==========================================
+# COMPILADOS Y BUILD
+# ==========================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+*.min.js
+*.min.css
+
+# ==========================================
+# TESTING
+# ==========================================
+coverage/
+.nyc_output/
+*.cover
+*.py,cover
+htmlcov/
+.tox/
+.hypothesis/
+.pytest_cache/
+nosetests.xml
+test-results/
+phpunit.xml
+
+# ==========================================
+# DOCUMENTACIÓN (TODOS LOS MD)
+# ==========================================
+*.md
+!README.md
+*.txt
+!.env.example
+AUDIT_REPORT.md
+AUDIT_COMPLETE.md
+QUICK_FIX_GUIDE.md
+*_CREDENTIALS.md
+*_PASSWORDS.txt
+*_KEYS.txt
+*_SECRETS.md
+
+# ==========================================
+# ARCHIVOS DE DEPLOY
+# ==========================================
+.deployment
+deploy.sh
+deploy_prod.sh
+*.deploy
+
+# ==========================================
+# BACKUPS
+# ==========================================
+*.backup
+backup/
+backups/
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ==========================================
+# ESPECÍFICOS DEL PROYECTO
+# ==========================================
+# Archivos de auditoría con credenciales
+MD/AUDIT*.md
+MD/*_PASSWORDS.md
+MD/*_CREDENTIALS.md
+
+# Scripts de diagnóstico
+diagnostic_*.txt
+diagnosis_*.log
+
+# Contratos compilados (pueden regenerarse)
+escrow-system/artifacts/
+escrow-system/cache/
+escrow-system/typechain-types/
+
+# ==========================================
+# NOTA IMPORTANTE
+# ==========================================
+# Este .gitignore protege contra filtración de:
+# - Credenciales y passwords
+# - API keys y secrets
+# - Datos de base de datos
+# - Información de usuarios
+# - Llaves privadas
+# - Certificados SSL
+# - Logs con información sensible
+#
+# NUNCA commits archivos .env o con credenciales
+# NUNCA commits dumps de base de datos
+# NUNCA commits llaves privadas
+# NUNCA commits archivos con información personal

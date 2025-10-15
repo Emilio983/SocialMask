@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /api/p2p/
+
+# Public key endpoint
+RewriteRule ^public-key/([0-9]+)$ public-key.php [L,QSA]
+
+# Metadata endpoints
+RewriteRule ^metadata/store$ store-metadata.php [L,QSA]
+RewriteRule ^metadata/cid/([a-zA-Z0-9]+)$ get-metadata.php [L,QSA]
+
+# Save public key
+RewriteRule ^save-public-key$ save-public-key.php [L,QSA]
+
+# Send message (fallback)
+RewriteRule ^send$ send.php [L,QSA]

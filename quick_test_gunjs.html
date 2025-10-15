@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Test - Gun.js P2P</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-4">🚀 Quick Test - Gun.js P2P</h1>
+        <div id="status" class="mb-4 p-4 bg-gray-800 rounded-lg">
+            <span class="text-yellow-400">⏳ Iniciando...</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <button onclick="testCreatePost()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                Crear Post
+            </button>
+            <button onclick="testListen()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                Escuchar Posts
+            </button>
+        </div>
+        
+        <div id="logs" class="bg-gray-800 p-4 rounded-lg h-96 overflow-y-auto font-mono text-sm">
+            <div class="text-gray-500">Esperando eventos...</div>
+        </div>
+    </div>
+
+    <!-- Gun.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    
+    <!-- Gun.js Client -->
+    <script src="assets/js/gun-client.js"></script>
+
+    <script>
+        let listening = false;
+
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                success: 'text-green-400',
+                error: 'text-red-400',
+                info: 'text-blue-400',
+                warning: 'text-yellow-400'
+            };
+            
+            const entry = document.createElement('div');
+            entry.className = colors[type] || colors.info;
+            entry.textContent = `[${timestamp}] ${message}`;
+            
+            if (logsDiv.querySelector('.text-gray-500')) {
+                logsDiv.innerHTML = '';
+            }
+            
+            logsDiv.insertBefore(entry, logsDiv.firstChild);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const colors = {
+                success: 'text-green-400',
+                error: 'text-red-400',
+                info: 'text-blue-400',
+                connecting: 'text-yellow-400'
+            };
+            statusDiv.innerHTML = `<span class="${colors[type] || colors.info}">${message}</span>`;
+        }
+
+        // Auto-inicializar
+        (async () => {
+            try {
+                updateStatus('⏳ Conectando a Gun.js...', 'connecting');
+                log('Inicializando Gun.js...', 'info');
+                
+                const success = await gunClient.init('http://localhost:8765/gun');
+                
+                if (success) {
+                    updateStatus('✅ Conectado a Gun.js relay', 'success');
+                    log('✅ Conexión exitosa!', 'success');
+                    log(`📡 Relay: http://localhost:8765/gun`, 'info');
+                } else {
+                    updateStatus('❌ Error al conectar', 'error');
+                    log('❌ No se pudo conectar a Gun.js', 'error');
+                }
+            } catch (error) {
+                updateStatus('❌ Error: ' + error.message, 'error');
+                log('❌ Error: ' + error.message, 'error');
+            }
+        })();
+
+        function testCreatePost() {
+            if (!gunClient.isConnected) {
+                log('⚠️ No estás conectado a Gun.js', 'warning');
+                return;
+            }
+
+            const postData = {
+                author: 'TestUser',
+                content: `Post de prueba #${Math.floor(Math.random() * 1000)} - ${new Date().toLocaleTimeString()}`,
+                likes: 0,
+                timestamp: Date.now()
+            };
+
+            log('Creando post...', 'info');
+            const post = gunClient.createPost(postData);
+            log(`✅ Post creado: "${post.content}"`, 'success');
+        }
+
+        function testListen() {
+            if (!gunClient.isConnected) {
+                log('⚠️ No estás conectado a Gun.js', 'warning');
+                return;
+            }
+
+            if (listening) {
+                log('⚠️ Ya estás escuchando posts', 'warning');
+                return;
+            }
+
+            log('👂 Activando listener de posts...', 'info');
+            gunClient.listenToPosts((post) => {
+                log(`🆕 Nuevo post: "${post.content}" (por ${post.author})`, 'success');
+            });
+            listening = true;
+            log('✅ Listener activo - Crea posts en otra pestaña para verlos aquí', 'success');
+        }
+    </script>
+</body>
+</html>
