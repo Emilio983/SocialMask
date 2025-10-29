@@ -1,0 +1,300 @@
+(function () {
+  console.log('[LOGIN] Script cargado - Inicializando...');
+
+  const statusEl = document.getElementById('status-text');
+  const statusWrap = document.getElementById('status-display');
+  const loginBtn = document.getElementById('passkey-login-btn');
+  const statusIcon = document.getElementById('status-icon');
+  const params = new URLSearchParams(window.location.search);
+  const linkCodeParam = params.get('link_code');
+  const qrTokenParam = params.get('qr_token');
+
+  console.log('[LOGIN] Elementos encontrados:', {
+    statusEl: !!statusEl,
+    statusWrap: !!statusWrap,
+    loginBtn: !!loginBtn,
+    statusIcon: !!statusIcon
+  });
+
+  function showStatus(message, type = 'info') {
+    if (!statusEl || !statusWrap) return;
+    statusEl.textContent = message;
+    statusWrap.classList.remove('hidden', 'status-success', 'status-error', 'status-info');
+    statusWrap.classList.add(`status-${type}`);
+    if (statusIcon) {
+      statusIcon.className = 'w-4 h-4 rounded-full';
+      if (type === 'success') statusIcon.classList.add('bg-brand-success');
+      else if (type === 'error') statusIcon.classList.add('bg-brand-error');
+      else statusIcon.classList.add('bg-brand-accent', 'animate-pulse');
+    }
+  }
+
+  function bufferDecode(value) {
+    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = normalized.length % 4;
+    const padded = pad ? normalized + '='.repeat(4 - pad) : normalized;
+    return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  }
+
+  function bufferEncode(value) {
+    return btoa(String.fromCharCode(...new Uint8Array(value)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  async function startPasskey() {
+    console.log('[LOGIN] startPasskey llamado - Iniciando flujo de login');
+
+    if (!loginBtn) {
+      console.error('[LOGIN] loginBtn no encontrado!');
+      return;
+    }
+
+    // Verificación básica de WebAuthn (muy permisiva)
+    // Solo verificamos lo mínimo necesario
+    if (!window.PublicKeyCredential) {
+        console.error('[LOGIN] PublicKeyCredential no disponible');
+        showStatus('Tu navegador no soporta passkeys. Por favor usa un navegador moderno en HTTPS.', 'error');
+        return;
+    }
+
+    console.log('[LOGIN] Deshabilitando botón y mostrando estado...');
+    loginBtn.disabled = true;
+    showStatus('Iniciando flujo de passkey...', 'info');
+
+    try {
+      // Generar un challengeId único
+      const challengeId = generateUUID();
+
+      const startResp = await fetch('/api/auth/passkey_start.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId }),
+      });
+
+      if (!startResp.ok) {
+        const errorData = await startResp.json().catch(() => ({}));
+        throw new Error(errorData.message || 'No se pudo iniciar el flujo de passkey');
+      }
+
+      const startJson = await startResp.json();
+      
+      // Verificar que tenemos los datos necesarios
+      if (!startJson.success) {
+        throw new Error(startJson.message || 'Respuesta de inicio inválida');
+      }
+
+      const { data } = startJson;
+
+      if (!data?.challenge) {
+        throw new Error('El servidor no devolvió un challenge válido');
+      }
+
+      showStatus('Esperando autenticación biométrica...', 'info');
+
+      // Configurar opciones de WebAuthn para login
+      const publicKey = {
+        challenge: bufferDecode(data.challenge),
+        timeout: data.timeout ?? 60000,
+        rpId: data.rpId ?? window.location.hostname,
+        userVerification: data.userVerification ?? 'preferred',
+        // Permitir cualquier credential registrado para este RP
+        allowCredentials: data.allowCredentials || [],
+      };
+
+      console.log('Getting credential with options:', publicKey);
+
+      // Intentar obtener la credencial
+      let assertion;
+      try {
+        assertion = await navigator.credentials.get({ publicKey });
+      } catch (error) {
+        console.error('Error getting credential:', error);
+        // Si falla, intentar sin especificar rpId (algunos navegadores son más estrictos)
+        if (error.name === 'NotAllowedError') {
+          throw new Error('Autenticación cancelada o no se encontró passkey registrado');
+        }
+        if (error.name === 'SecurityError') {
+          throw new Error('Error de seguridad. Verifica que estés en HTTPS o localhost.');
+        }
+        throw error;
+      }
+
+      if (!assertion) {
+        throw new Error('Autenticación cancelada');
+      }
+
+      const credential = {
+        id: assertion.id,
+        type: assertion.type,
+        rawId: bufferEncode(assertion.rawId),
+        response: {
+          clientDataJSON: bufferEncode(assertion.response.clientDataJSON),
+          authenticatorData: bufferEncode(assertion.response.authenticatorData),
+          signature: bufferEncode(assertion.response.signature),
+          userHandle: assertion.response.userHandle
+            ? bufferEncode(assertion.response.userHandle)
+            : null,
+        },
+      };
+
+      let web3AuthData = null;
+      if (typeof window.obtainWeb3AuthToken === 'function') {
+        try {
+          const maybeToken = await window.obtainWeb3AuthToken({
+            challengeId,
+            credential,
+          });
+          if (maybeToken && typeof maybeToken === 'object') {
+            web3AuthData = maybeToken;
+          }
+        } catch (tokenError) {
+          console.warn('No se pudo obtener token de Web3Auth', tokenError);
+        }
+      }
+
+      const payload = {
+        challengeId,
+        credential,
+        platform: navigator.userAgent,
+      };
+
+      if (linkCodeParam) {
+        payload.linkCode = linkCodeParam.toUpperCase();
+      }
+      if (qrTokenParam) {
+        payload.qrToken = qrTokenParam;
+      }
+      if (web3AuthData) {
+        payload.web3Auth = web3AuthData;
+      }
+
+      showStatus('Verificando credencial...', 'info');
+
+      const finishResp = await fetch('/api/auth/passkey_finish.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const finishJson = await finishResp.json();
+      
+      if (!finishResp.ok) {
+        // Si el usuario no existe, redirigir a registro
+        if (finishJson.action === 'register') {
+          showStatus(finishJson.message || 'Usuario no encontrado', 'error');
+          setTimeout(() => {
+            window.location.href = '/pages/register.php';
+          }, 2000);
+          return;
+        }
+        throw new Error(finishJson.message || 'No se pudo completar el inicio de sesión');
+      }
+
+      if (!finishJson.success) {
+        throw new Error(finishJson.message || 'Error al verificar la credencial');
+      }
+
+      showStatus('¡Autenticado!', 'success');
+      // Redirección inmediata
+      window.location.href = '/pages/dashboard.php';
+    } catch (error) {
+      console.error('Error en inicio de sesión:', error);
+      let errorMsg = error.message || 'Error al iniciar sesión';
+      
+      // Mensajes más específicos para diferentes errores
+      if (error.message && error.message.includes('Failed to fetch')) {
+        errorMsg = 'Error de conexión con el servidor. Verifica tu conexión a internet.';
+      }
+      
+      showStatus(errorMsg, 'error');
+      loginBtn.disabled = false;
+    }
+  }
+
+  // Verificar soporte de passkeys de manera asíncrona (solo para logs, no bloquea)
+  async function checkPasskeySupport() {
+    // Verificar API básica de WebAuthn
+    if (!window.PublicKeyCredential) {
+      console.warn('PublicKeyCredential API not available');
+      return false;
+    }
+
+    try {
+      // Verificar si hay conditional mediation disponible (autofill de passkeys)
+      if (typeof PublicKeyCredential.isConditionalMediationAvailable === 'function') {
+        try {
+          const conditionalAvailable = await PublicKeyCredential.isConditionalMediationAvailable();
+          if (conditionalAvailable) {
+            console.log('Conditional mediation (autofill) available');
+          }
+        } catch (error) {
+          console.debug('Conditional mediation check failed:', error);
+        }
+      }
+
+      // Verificar disponibilidad de autenticador de plataforma
+      // Esto puede fallar en algunos navegadores pero aún así soportar passkeys
+      if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+        try {
+          const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+          console.log('Platform authenticator available:', available);
+        } catch (error) {
+          console.debug('Platform authenticator check failed:', error);
+        }
+      }
+    } catch (error) {
+      console.debug('Passkey support check failed:', error);
+    }
+
+    // Chrome/Safari/Edge modernos y Firefox 60+ soportan passkeys
+    // Permitimos que el usuario intente incluso si las verificaciones fallan
+    return true;
+  }
+
+  // Inicializar
+  (async function init() {
+    // Verificar soporte solo para logging, no bloquear la funcionalidad
+    if (window.PublicKeyCredential) {
+      // Solo verificar características para logging
+      checkPasskeySupport().then(() => {
+        console.log('Passkey support check completed');
+      }).catch((error) => {
+        console.debug('Passkey check error (non-blocking):', error);
+      });
+    } else {
+      // SOLO si no existe la API mostramos advertencia pero NO deshabilitamos
+      console.warn('WebAuthn API not detected, but will still attempt passkey flow');
+    }
+
+    // SIEMPRE habilitar el botón - dejar que WebAuthn maneje los errores
+    if (loginBtn) {
+      console.log('[LOGIN] Registrando evento click en botón');
+      loginBtn.addEventListener('click', function(e) {
+        console.log('[LOGIN] Click detectado en botón!');
+        e.preventDefault();
+        startPasskey();
+      });
+
+      // Mostrar mensajes especiales solo si hay códigos de vinculación
+      if (linkCodeParam) {
+        showStatus(`Vinculando nuevo dispositivo con código ${linkCodeParam.toUpperCase()}`, 'info');
+      } else if (qrTokenParam) {
+        showStatus('Vinculando nuevo dispositivo mediante QR.', 'info');
+      }
+
+      console.log('[LOGIN] Inicialización completada - Botón listo');
+    } else {
+      console.error('[LOGIN] No se encontró el botón de login! ID esperado: passkey-login-btn');
+    }
+  })();
+})();

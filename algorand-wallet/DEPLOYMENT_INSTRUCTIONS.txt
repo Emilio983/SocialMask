@@ -1,0 +1,274 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║    ALGORAND MAINNET PASSKEY WALLET - INSTRUCCIONES DE DESPLIEGUE   ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📍 UBICACIÓN: /root/algorand-wallet
+🌐 URL OBJETIVO: https://algorand.socialmask.org
+💰 RED: Algorand Mainnet (fondos reales)
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 DESPLIEGUE RÁPIDO (5 PASOS)
+
+1. CONFIGURAR DNS
+   ─────────────────
+   • Agregar registro A en tu proveedor DNS:
+     Type: A
+     Name: algorand
+     Value: [IP_DE_TU_SERVIDOR]
+     TTL: 3600
+   
+   • Verificar:
+     $ dig algorand.socialmask.org +short
+   
+   • Esperar propagación (5-30 minutos)
+
+2. BUILD DE LA APLICACIÓN
+   ────────────────────────
+   $ cd /root/algorand-wallet/frontend
+   $ npm install
+   $ npm run build
+   
+   ✅ Verifica que se cree ./dist/ con archivos
+
+3. DESPLEGAR APLICACIÓN
+   ────────────────────
+   $ cd /root/algorand-wallet/infra
+   $ chmod +x *.sh
+   $ ./deploy.sh
+   
+   Este script:
+   • Copia archivos a /var/www/algorand.socialmask.org
+   • Configura Nginx
+   • Establece permisos
+   • Recarga Nginx
+
+4. CONFIGURAR SSL
+   ───────────────
+   $ ./setup-ssl.sh
+   
+   Este script:
+   • Instala Certbot si es necesario
+   • Obtiene certificado Let's Encrypt
+   • Configura renovación automática
+   • Habilita HTTPS
+
+5. VERIFICAR DESPLIEGUE
+   ────────────────────
+   $ ./verify-deployment.sh
+   
+   Este script verifica:
+   • DNS configurado
+   • Nginx funcionando
+   • SSL instalado
+   • Sitio accesible
+   • Headers de seguridad
+   
+   O manualmente:
+   $ curl -I https://algorand.socialmask.org
+   
+   Debe retornar: 200 OK
+
+═══════════════════════════════════════════════════════════════════════
+
+🧪 PRUEBAS POST-DESPLIEGUE
+
+1. PRUEBA BÁSICA
+   ──────────────
+   • Visita: https://algorand.socialmask.org
+   • Debe cargar sin errores
+   • Warning de Mainnet visible
+   • UI oscuro y limpio
+
+2. CREAR WALLET
+   ─────────────
+   • Click "Create Wallet with Passkey"
+   • Autenticación biométrica
+   • Wallet creada
+   • Address mostrada (58 caracteres)
+   • QR code visible
+
+3. DEPÓSITO DESDE BINANCE
+   ──────────────────────
+   • Copiar address de la wallet
+   • Binance → Withdraw → ALGO
+   • Red: ALGO (⚠️ IMPORTANTE!)
+   • Monto: 1.0 ALGO
+   • Esperar 2-5 minutos
+   • Verificar balance actualizado
+
+4. RETIRO HACIA BINANCE
+   ─────────────────────
+   • Obtener address depósito Binance (ALGO)
+   • Tab "Send ALGO"
+   • Pegar address Binance
+   • Monto: 0.5 ALGO
+   • Click "Sign & Send"
+   • Verificar TxID
+   • Click link → AlgoExplorer
+   • Verificar recepción en Binance
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 CHECKLIST DE VERIFICACIÓN
+
+Pre-Despliegue:
+□ Node.js 18+ instalado
+□ npm instalado
+□ Nginx instalado
+□ Certbot instalado
+□ DNS configurado
+□ Puerto 80 abierto
+□ Puerto 443 abierto
+
+Post-Despliegue:
+□ DNS resuelve correctamente
+□ HTTP redirige a HTTPS
+□ HTTPS funciona sin warnings
+□ Certificado SSL válido
+□ Headers de seguridad presentes
+□ Sitio carga en <2 segundos
+□ Passkey registration funciona
+□ Wallet creation funciona
+□ ALGO transfers funcionan
+□ Binance integration funciona
+
+═══════════════════════════════════════════════════════════════════════
+
+🔧 TROUBLESHOOTING
+
+PROBLEMA: DNS no resuelve
+SOLUCIÓN: 
+  • Verificar registro A en proveedor DNS
+  • Esperar más tiempo (hasta 48h)
+  • Limpiar cache DNS local:
+    $ sudo systemd-resolve --flush-caches
+
+PROBLEMA: Certificado SSL falla
+SOLUCIÓN:
+  • Verificar DNS propagado
+  • Puerto 80 accesible
+  • Nginx sirviendo en puerto 80
+  • Re-ejecutar: ./setup-ssl.sh
+
+PROBLEMA: Sitio no carga
+SOLUCIÓN:
+  • Verificar Nginx: systemctl status nginx
+  • Test config: nginx -t
+  • Ver logs: tail -f /var/log/nginx/error.log
+  • Reiniciar: systemctl restart nginx
+
+PROBLEMA: Build falla
+SOLUCIÓN:
+  $ cd /root/algorand-wallet/frontend
+  $ rm -rf node_modules package-lock.json
+  $ npm install
+  $ npm run build
+
+═══════════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTACIÓN COMPLETA
+
+README.md                    - Guía completa del proyecto
+QUICKSTART.md               - Setup rápido (5 minutos)
+QA_CHECKLIST.md             - Tests completos (~100 casos)
+DNS_SETUP.md                - Configuración DNS detallada
+BINANCE_INTEGRATION.md      - Guía Binance paso a paso
+PROJECT_SUMMARY.md          - Resumen técnico ejecutivo
+ENTREGABLES_FINALES.md      - Lista completa de entregables
+
+═══════════════════════════════════════════════════════════════════════
+
+🎬 GRABAR VIDEO DE DEMO
+
+Requisitos:
+• Wallet creada con fondos (1-2 ALGO)
+• Cuenta Binance con ALGO
+• OBS Studio o screen recorder
+• Resolución 1080p
+• Duración 60-90 segundos
+
+Guión:
+[0-10s]  Mostrar homepage y crear wallet
+[10-25s] Depósito desde Binance
+[25-40s] Balance actualizado
+[40-60s] Envío hacia Binance
+[60-75s] Confirmación en explorer
+[75-90s] Resumen y URL
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️  ADVERTENCIAS IMPORTANTES
+
+MAINNET REAL:
+• Este sistema usa fondos reales en Algorand Mainnet
+• Usar solo montos pequeños (0.5-2 ALGO)
+• Cada transacción cuesta 0.001 ALGO
+• Las transacciones son IRREVERSIBLES
+• Verificar SIEMPRE las addresses antes de enviar
+
+BINANCE:
+• Usar SIEMPRE red "ALGO" (no BEP2/BEP20)
+• Red incorrecta = FONDOS PERDIDOS
+• Mínimo depósito Binance: ~0.1 ALGO
+• Confirmaciones requeridas: 15-30 bloques
+
+SEGURIDAD:
+• Exportar backup inmediatamente
+• Guardar backup en lugar seguro
+• No compartir mnemonic NUNCA
+• Passkey es único por dispositivo
+• Session expira en 15 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+📞 SOPORTE
+
+Logs:
+  $ tail -f /var/log/nginx/algorand.socialmask.org.access.log
+  $ tail -f /var/log/nginx/algorand.socialmask.org.error.log
+
+Status:
+  $ systemctl status nginx
+  $ certbot certificates
+
+Redeploy:
+  $ cd /root/algorand-wallet/infra
+  $ ./deploy.sh
+
+Recursos:
+  • AlgoExplorer: https://algoexplorer.io
+  • AlgoNode: https://algonode.io
+  • Algorand Docs: https://developer.algorand.org
+  • Binance Support: https://binance.com/support
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ PROYECTO COMPLETADO
+
+Estado: LISTO PARA PRODUCCIÓN
+Versión: 1.0.0
+Fecha: 2025-01-27
+Licencia: MIT
+
+Todos los objetivos cumplidos:
+✅ Passkey authentication
+✅ Self-custody wallet
+✅ Mainnet ALGO transfers
+✅ Binance integration
+✅ Clean UI for demo
+✅ TxID and explorer links
+✅ Complete documentation
+✅ Deployment automation
+✅ Security best practices
+✅ Reset without exposing mnemonic
+
+═══════════════════════════════════════════════════════════════════════
+
+¡LISTO PARA DESPLEGAR! 🚀
+
+Siguiente paso: ./deploy.sh
+
+═══════════════════════════════════════════════════════════════════════

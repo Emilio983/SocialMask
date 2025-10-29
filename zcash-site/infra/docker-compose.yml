@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zcash-wallet-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wallet}
+      POSTGRES_USER: ${POSTGRES_USER:-wallet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wallet_secure_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wallet}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zcash-network
+
+  # Zcashd full node (testnet)
+  zcashd:
+    image: electriccoinco/zcashd:latest
+    container_name: zcash-zcashd
+    restart: unless-stopped
+    ports:
+      - "18232:18232"  # RPC port (testnet)
+      - "18233:18233"  # P2P port (testnet)
+    volumes:
+      - zcashd_data:/root/.zcash
+    command: [
+      "zcashd",
+      "-testnet",
+      "-rpcuser=zcashrpc",
+      "-rpcpassword=zcashrpcpassword123",
+      "-rpcbind=0.0.0.0",
+      "-rpcallowip=0.0.0.0/0",
+      "-txindex=1",
+      "-insightexplorer=1"
+    ]
+    healthcheck:
+      test: ["CMD-SHELL", "zcash-cli -testnet -rpcuser=zcashrpc -rpcpassword=zcashrpcpassword123 getinfo || exit 1"]
+      interval: 60s
+      timeout: 30s
+      retries: 10
+      start_period: 300s
+    networks:
+      - zcash-network
+
+  # Lightwalletd - lightweight Zcash backend
+  lightwalletd:
+    image: zcashfr/lightwalletd:latest
+    container_name: zcash-lightwalletd
+    restart: unless-stopped
+    environment:
+      ZCASH_RPC_HOST: zcashd
+      ZCASH_RPC_PORT: 18232
+      ZCASH_RPC_USER: zcashrpc
+      ZCASH_RPC_PASSWORD: zcashrpcpassword123
+    ports:
+      - "9067:9067"  # gRPC
+      - "9068:9068"  # HTTP
+    depends_on:
+      - zcashd
+    command: [
+      "/usr/local/bin/lightwalletd",
+      "--grpc-bind-addr=0.0.0.0:9067",
+      "--http-bind-addr=0.0.0.0:9068",
+      "--zcash-conf-path=/dev/null",
+      "--no-tls-very-insecure=true",
+      "--data-dir=/var/lib/lightwalletd",
+      "--log-file=/dev/stdout",
+      "--log-level=7"
+    ]
+    volumes:
+      - lightwalletd_data:/var/lib/lightwalletd
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9067 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
+    networks:
+      - zcash-network
+
+  # Backend API (Node.js/Express)
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: zcash-wallet-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${BACKEND_PORT:-8080}
+      POSTGRES_URL: postgresql://${POSTGRES_USER:-wallet}:${POSTGRES_PASSWORD:-wallet_secure_password}@postgres:5432/${POSTGRES_DB:-wallet}
+      LIGHTWALLETD_HOST: lightwalletd
+      LIGHTWALLETD_PORT: 9067
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CSP_ENFORCE: ${CSP_ENFORCE:-true}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-10}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      lightwalletd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - zcash-network
+
+volumes:
+  postgres_data:
+    driver: local
+  zcashd_data:
+    driver: local
+  lightwalletd_data:
+    driver: local
+
+networks:
+  zcash-network:
+    driver: bridge

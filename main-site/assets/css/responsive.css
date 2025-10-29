@@ -1,0 +1,278 @@
+/**
+ * SPHORIA - RESPONSIVE CSS
+ * Mobile-first responsive styles that don't break desktop design
+ */
+
+/* ============================================
+   MOBILE STYLES (max-width: 767px)
+   ============================================ */
+
+@media (max-width: 767px) {
+
+    /* === TYPOGRAPHY === */
+    h1 {
+        font-size: 2rem !important; /* 32px instead of 60px+ */
+        line-height: 1.2 !important;
+    }
+
+    h2 {
+        font-size: 1.75rem !important; /* 28px instead of 48px+ */
+        line-height: 1.3 !important;
+    }
+
+    h3 {
+        font-size: 1.5rem !important; /* 24px instead of 32px+ */
+    }
+
+    p, .text-xl {
+        font-size: 1rem !important; /* 16px instead of 20px */
+        line-height: 1.5 !important;
+    }
+
+    .text-5xl {
+        font-size: 2rem !important;
+    }
+
+    .text-6xl {
+        font-size: 2.25rem !important;
+    }
+
+    /* === BUTTONS === */
+    .btn, a[class*="py-"] {
+        padding: 0.75rem 1.5rem !important; /* Reduce padding */
+        font-size: 0.875rem !important; /* 14px */
+        white-space: nowrap !important; /* Prevent line breaks */
+    }
+
+    /* Button groups - stack vertically */
+    .flex.space-x-4 {
+        flex-direction: column !important;
+        space-x: 0 !important;
+        gap: 0.75rem !important;
+    }
+
+    .flex.space-x-4 > * {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* === UNISWAP IFRAME === */
+    iframe[src*="uniswap"] {
+        height: 500px !important; /* Reduce from 620px */
+        min-height: 500px !important;
+        max-height: 600px !important;
+    }
+
+    /* Iframe container */
+    .rounded-2xl.p-2 {
+        padding: 0.25rem !important;
+    }
+
+    /* === SECTIONS === */
+    section {
+        padding-top: 3rem !important; /* Reduce from 6rem */
+        padding-bottom: 3rem !important;
+    }
+
+    .py-24 {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+    }
+
+    .py-12 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    .pt-32 {
+        padding-top: 5rem !important; /* Account for navbar */
+    }
+
+    /* === CONTAINERS === */
+    .max-w-7xl {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* === GRID === */
+    .grid-cols-1.md\:grid-cols-2,
+    .grid-cols-1.md\:grid-cols-3 {
+        gap: 1.5rem !important; /* Reduce gap */
+    }
+
+    /* === CARDS === */
+    .bg-brand-bg-secondary.rounded-2xl {
+        padding: 1.5rem !important; /* Reduce from 2rem */
+    }
+
+    /* === STATS === */
+    .text-4xl {
+        font-size: 2rem !important;
+    }
+
+    /* === NAVBAR === */
+    nav {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* === HERO SECTION === */
+    .min-h-screen {
+        min-height: 100vh !important;
+        padding-top: 6rem !important; /* More space for navbar */
+    }
+
+    /* === FORMS === */
+    input, textarea, select {
+        font-size: 1rem !important;
+        padding: 0.75rem !important;
+    }
+
+    /* === MODAL === */
+    .fixed.inset-0 > div {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+    }
+}
+
+/* ============================================
+   TABLET STYLES (768px - 1023px)
+   ============================================ */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    h1 {
+        font-size: 3rem !important;
+    }
+
+    h2 {
+        font-size: 2.5rem !important;
+    }
+
+    iframe[src*="uniswap"] {
+        height: 580px !important;
+    }
+
+    .text-5xl {
+        font-size: 2.5rem !important;
+    }
+
+    .text-6xl {
+        font-size: 3rem !important;
+    }
+}
+
+/* ============================================
+   LANDSCAPE MOBILE (max-height: 500px)
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    .min-h-screen {
+        min-height: auto !important;
+        padding-top: 4rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+}
+
+/* ============================================
+   SMALL MOBILE (max-width: 374px)
+   ============================================ */
+
+@media (max-width: 374px) {
+
+    h1 {
+        font-size: 1.75rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .btn, a[class*="py-"] {
+        padding: 0.625rem 1rem !important;
+        font-size: 0.8125rem !important;
+    }
+
+    iframe[src*="uniswap"] {
+        height: 450px !important;
+    }
+
+    .text-4xl {
+        font-size: 1.75rem !important;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Prevent horizontal scroll */
+body {
+    overflow-x: hidden;
+}
+
+/* Better touch targets for mobile */
+@media (max-width: 767px) {
+    a, button {
+        min-height: 44px; /* iOS recommended touch target */
+        min-width: 44px;
+    }
+}
+
+/* Responsive images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive tables */
+@media (max-width: 767px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 767px) {
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+}
+
+/* Fix button text wrapping */
+@media (max-width: 767px) {
+    button, .btn, a.btn {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+}
+
+/* Responsive padding for cards */
+@media (max-width: 767px) {
+    .p-8 {
+        padding: 1.5rem !important;
+    }
+
+    .p-6 {
+        padding: 1rem !important;
+    }
+}
+
+/* Better spacing on mobile */
+@media (max-width: 767px) {
+    .space-y-8 > * + * {
+        margin-top: 1.5rem !important;
+    }
+
+    .space-y-12 > * + * {
+        margin-top: 2rem !important;
+    }
+}

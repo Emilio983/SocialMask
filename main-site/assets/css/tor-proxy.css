@@ -1,0 +1,257 @@
+/* ============================================
+ * TOR PROXY UI STYLES
+ * ============================================ */
+
+/* Tor controls */
+.tor-controls {
+    padding: 12px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+}
+
+.tor-controls.floating-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+}
+
+/* Status indicator */
+.tor-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tor-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+}
+
+[data-tor-status="disconnected"] .tor-icon {
+    background: #e0e0e0;
+    color: #757575;
+}
+
+[data-tor-status="connecting"] .tor-icon {
+    background: #fff3cd;
+    color: #856404;
+    animation: pulse 1s infinite;
+}
+
+[data-tor-status="connected"] .tor-icon {
+    background: linear-gradient(135deg, #7F00FF 0%, #E100FF 100%);
+    color: white;
+    animation: glow 2s infinite;
+}
+
+[data-tor-status="error"] .tor-icon {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(127, 0, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(127, 0, 255, 0.8);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Tor info */
+.tor-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tor-info strong {
+    font-size: 14px;
+    color: #333;
+}
+
+.tor-status-text {
+    font-size: 12px;
+    color: #757575;
+}
+
+/* Tor details */
+.tor-details {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.tor-ip-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.tor-ip-info code {
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #7F00FF;
+}
+
+.tor-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tor-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Connection info modal */
+.connection-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.info-row strong {
+    color: #495057;
+    font-size: 14px;
+}
+
+.info-row code {
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #7F00FF;
+    font-size: 13px;
+}
+
+/* Setup modal */
+.accordion-button {
+    font-size: 14px;
+    padding: 10px 16px;
+}
+
+.accordion-body pre {
+    background: #2b2b2b;
+    color: #f8f8f2;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    overflow-x: auto;
+}
+
+/* Notification toast */
+.notification-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-toast i {
+    font-size: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tor-controls.floating-widget {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        min-width: auto;
+    }
+    
+    .tor-actions .btn {
+        min-width: 100px;
+        font-size: 12px;
+    }
+    
+    .notification-toast {
+        left: 10px;
+        right: 10px;
+        min-width: auto;
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .tor-controls {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+    
+    .tor-info strong {
+        color: #e0e0e0;
+    }
+    
+    .tor-ip-info {
+        background: #2a2a2a;
+    }
+    
+    .tor-ip-info code {
+        background: #1e1e1e;
+        color: #BB86FC;
+    }
+    
+    .info-row {
+        background: #2a2a2a;
+    }
+    
+    .info-row strong {
+        color: #e0e0e0;
+    }
+    
+    .info-row code {
+        background: #1e1e1e;
+        color: #BB86FC;
+    }
+}

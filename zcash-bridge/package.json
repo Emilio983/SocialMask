@@ -1,0 +1,27 @@
+{
+  "name": "zcash-grpc-rest-bridge",
+  "version": "1.0.0",
+  "description": "REST to gRPC bridge for Zcash lightwalletd mainnet",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "build": "echo 'No build needed for JS'"
+  },
+  "keywords": ["zcash", "grpc", "rest", "bridge", "lightwalletd"],
+  "author": "Zcash Bridge",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "@grpc/grpc-js": "^1.9.14",
+    "@grpc/proto-loader": "^0.7.10",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "express-rate-limit": "^7.1.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

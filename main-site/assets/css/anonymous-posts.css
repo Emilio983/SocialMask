@@ -1,0 +1,288 @@
+/**
+ * ============================================
+ * ANONYMOUS POSTS CSS
+ * ============================================
+ */
+
+/* Anonymous mode indicator */
+[data-anonymous-indicator] {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 1000;
+    display: none;
+}
+
+.anonymous-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    }
+}
+
+/* Anonymous post card */
+.anonymous-post {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    border-left: 4px solid #667eea;
+}
+
+.anonymous-post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Anonymous avatar */
+.avatar-anonymous {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+/* Post header */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+}
+
+/* Post content */
+.post-content {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.post-content p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.post-content img {
+    margin-top: 10px;
+    max-width: 100%;
+}
+
+/* Post actions */
+.post-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.post-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Anonymous mode form */
+.post-form.anonymous-mode {
+    border: 2px solid #667eea;
+    background: linear-gradient(to right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+/* Identity card */
+.identity-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.identity-card code {
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+/* Notifications */
+.notification-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+}
+
+.notification-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Anonymous feed */
+[data-anonymous-feed] {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Modal customizations */
+#anonymousPostModal .modal-content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#anonymousPostModal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+#anonymousPostModal textarea {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+#anonymousPostModal textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Verified badge */
+.fa-check-circle {
+    font-size: 14px;
+}
+
+/* Badges */
+.badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-left: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    [data-anonymous-indicator] {
+        top: auto;
+        bottom: 20px;
+        right: 10px;
+    }
+    
+    .anonymous-post {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .avatar-anonymous {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .post-actions {
+        flex-wrap: wrap;
+    }
+    
+    .notification-toast {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .anonymous-post {
+        background: #1e1e1e;
+        color: #e0e0e0;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+    }
+    
+    .post-content {
+        color: #e0e0e0;
+    }
+    
+    .post-actions {
+        border-top-color: #333;
+    }
+    
+    .identity-card {
+        background: #2a2a2a;
+    }
+    
+    .identity-card code {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+}
+
+/* Loading states */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Reputation score */
+.reputation-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.reputation-score.high {
+    background: #d4edda;
+    color: #155724;
+}
+
+.reputation-score.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.reputation-score.low {
+    background: #f8d7da;
+    color: #721c24;
+}

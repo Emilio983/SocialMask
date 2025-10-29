@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Soporte WebAuthn/Passkeys</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0D1117;
+            color: #C9D1D9;
+        }
+        h1 {
+            color: #3B82F6;
+            border-bottom: 2px solid #30363D;
+            padding-bottom: 10px;
+        }
+        .test {
+            background: #161B22;
+            border: 1px solid #30363D;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .test h3 {
+            margin-top: 0;
+            color: #8B949E;
+        }
+        .pass {
+            color: #28A745;
+            font-weight: bold;
+        }
+        .fail {
+            color: #DC3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #3B82F6;
+        }
+        code {
+            background: #0D1117;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0D1117;
+            border-radius: 4px;
+        }
+        button {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #2563EB;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico de Soporte WebAuthn/Passkeys</h1>
+    
+    <div class="test">
+        <h3>1. Información del Navegador</h3>
+        <div class="result">
+            <strong>User Agent:</strong><br>
+            <code id="userAgent"></code>
+        </div>
+    </div>
+
+    <div class="test">
+        <h3>2. Protocolo de Conexión</h3>
+        <div class="result" id="protocolTest"></div>
+    </div>
+
+    <div class="test">
+        <h3>3. API PublicKeyCredential</h3>
+        <div class="result" id="publicKeyTest"></div>
+    </div>
+
+    <div class="test">
+        <h3>4. navigator.credentials</h3>
+        <div class="result" id="credentialsTest"></div>
+    </div>
+
+    <div class="test">
+        <h3>5. navigator.credentials.create</h3>
+        <div class="result" id="createTest"></div>
+    </div>
+
+    <div class="test">
+        <h3>6. navigator.credentials.get</h3>
+        <div class="result" id="getTest"></div>
+    </div>
+
+    <div class="test">
+        <h3>7. Platform Authenticator</h3>
+        <div class="result" id="platformTest">
+            <span class="info">Verificando...</span>
+        </div>
+    </div>
+
+    <div class="test">
+        <h3>8. Conditional Mediation (Autofill)</h3>
+        <div class="result" id="conditionalTest">
+            <span class="info">Verificando...</span>
+        </div>
+    </div>
+
+    <div class="test">
+        <h3>9. Prueba Real de Creación de Passkey</h3>
+        <div class="result">
+            <p>Esta prueba intentará crear un passkey de prueba en tu dispositivo.</p>
+            <button id="testCreateBtn">Probar Crear Passkey</button>
+            <div id="createResult" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div class="test">
+        <h3>✅ Resumen</h3>
+        <div class="result" id="summary"></div>
+    </div>
+
+    <script>
+        // 1. User Agent
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+
+        // 2. Protocolo
+        const protocol = window.location.protocol;
+        const isSecure = protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        document.getElementById('protocolTest').innerHTML = `
+            <strong>Protocolo:</strong> <code>${protocol}</code><br>
+            <strong>Hostname:</strong> <code>${window.location.hostname}</code><br>
+            <strong>Contexto Seguro:</strong> ${isSecure ? '<span class="pass">✓ SÍ</span>' : '<span class="fail">✗ NO (Se requiere HTTPS o localhost)</span>'}
+        `;
+
+        // 3. PublicKeyCredential
+        const hasPublicKey = typeof window.PublicKeyCredential !== 'undefined';
+        document.getElementById('publicKeyTest').innerHTML = hasPublicKey
+            ? '<span class="pass">✓ Disponible</span>'
+            : '<span class="fail">✗ No disponible - Tu navegador no soporta WebAuthn</span>';
+
+        // 4. navigator.credentials
+        const hasCredentials = typeof navigator.credentials !== 'undefined';
+        document.getElementById('credentialsTest').innerHTML = hasCredentials
+            ? '<span class="pass">✓ Disponible</span>'
+            : '<span class="fail">✗ No disponible</span>';
+
+        // 5. navigator.credentials.create
+        const hasCreate = hasCredentials && typeof navigator.credentials.create === 'function';
+        document.getElementById('createTest').innerHTML = hasCreate
+            ? '<span class="pass">✓ Disponible</span>'
+            : '<span class="fail">✗ No disponible</span>';
+
+        // 6. navigator.credentials.get
+        const hasGet = hasCredentials && typeof navigator.credentials.get === 'function';
+        document.getElementById('getTest').innerHTML = hasGet
+            ? '<span class="pass">✓ Disponible</span>'
+            : '<span class="fail">✗ No disponible</span>';
+
+        // 7. Platform Authenticator (async)
+        if (hasPublicKey && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+            PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+                .then(available => {
+                    document.getElementById('platformTest').innerHTML = available
+                        ? '<span class="pass">✓ Disponible (huella/Face ID/Windows Hello)</span>'
+                        : '<span class="info">⚠ No disponible - Puedes usar security key USB/NFC</span>';
+                })
+                .catch(err => {
+                    document.getElementById('platformTest').innerHTML = 
+                        '<span class="info">⚠ No se pudo verificar: ' + err.message + '</span>';
+                });
+        } else {
+            document.getElementById('platformTest').innerHTML = 
+                '<span class="fail">✗ API no disponible</span>';
+        }
+
+        // 8. Conditional Mediation (async)
+        if (hasPublicKey && typeof PublicKeyCredential.isConditionalMediationAvailable === 'function') {
+            PublicKeyCredential.isConditionalMediationAvailable()
+                .then(available => {
+                    document.getElementById('conditionalTest').innerHTML = available
+                        ? '<span class="pass">✓ Disponible (autofill de passkeys)</span>'
+                        : '<span class="info">⚠ No disponible</span>';
+                })
+                .catch(err => {
+                    document.getElementById('conditionalTest').innerHTML = 
+                        '<span class="info">⚠ No se pudo verificar: ' + err.message + '</span>';
+                });
+        } else {
+            document.getElementById('conditionalTest').innerHTML = 
+                '<span class="info">⚠ API no disponible (normal en algunos navegadores)</span>';
+        }
+
+        // 9. Prueba real
+        document.getElementById('testCreateBtn').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('createResult');
+            const btn = document.getElementById('testCreateBtn');
+            btn.disabled = true;
+            resultDiv.innerHTML = '<span class="info">Iniciando prueba...</span>';
+
+            if (!hasPublicKey || !hasCreate) {
+                resultDiv.innerHTML = '<span class="fail">✗ No se puede probar - API no disponible</span>';
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                // Generar un challenge aleatorio
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+
+                const userId = new Uint8Array(16);
+                crypto.getRandomValues(userId);
+
+                const publicKeyOptions = {
+                    challenge: challenge,
+                    rp: {
+                        name: "Test Passkey",
+                        id: window.location.hostname
+                    },
+                    user: {
+                        id: userId,
+                        name: "test_user_" + Date.now(),
+                        displayName: "Usuario de Prueba"
+                    },
+                    pubKeyCredParams: [
+                        { alg: -7, type: "public-key" },  // ES256
+                        { alg: -257, type: "public-key" } // RS256
+                    ],
+                    timeout: 60000,
+                    attestation: "none",
+                    authenticatorSelection: {
+                        requireResidentKey: false,
+                        residentKey: "preferred",
+                        userVerification: "preferred"
+                    }
+                };
+
+                resultDiv.innerHTML = '<span class="info">Esperando autenticación biométrica...</span>';
+                
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyOptions
+                });
+
+                if (credential) {
+                    resultDiv.innerHTML = `
+                        <span class="pass">✓ ¡ÉXITO! Passkey creado correctamente</span><br>
+                        <small>ID: ${credential.id.substring(0, 20)}...</small><br>
+                        <small style="color: #8B949E;">Tu navegador SOPORTA passkeys completamente.</small>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<span class="fail">✗ No se recibió credencial</span>';
+                }
+            } catch (error) {
+                let errorMsg = error.message;
+                if (error.name === 'NotAllowedError') {
+                    errorMsg = 'Creación cancelada o no permitida';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMsg = 'Tipo de autenticador no soportado';
+                } else if (error.name === 'SecurityError') {
+                    errorMsg = 'Error de seguridad - verifica HTTPS';
+                }
+                resultDiv.innerHTML = `
+                    <span class="fail">✗ Error: ${errorMsg}</span><br>
+                    <small style="color: #8B949E;">${error.name}</small>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Resumen
+        function updateSummary() {
+            const allChecks = hasPublicKey && hasCredentials && hasCreate && hasGet && isSecure;
+            const summaryDiv = document.getElementById('summary');
+            
+            if (allChecks) {
+                summaryDiv.innerHTML = `
+                    <span class="pass" style="font-size: 1.2em;">✓ Tu navegador SOPORTA passkeys</span><br>
+                    <p style="margin-top: 10px;">Todas las APIs necesarias están disponibles. Si sigues teniendo problemas:</p>
+                    <ul style="margin: 10px 0; color: #8B949E;">
+                        <li>Limpia la caché del navegador (Ctrl+Shift+R)</li>
+                        <li>Verifica que estés en HTTPS</li>
+                        <li>Revisa la consola del navegador (F12)</li>
+                        <li>Prueba el botón de arriba para crear un passkey de prueba</li>
+                    </ul>
+                `;
+            } else {
+                summaryDiv.innerHTML = `
+                    <span class="fail" style="font-size: 1.2em;">✗ Tu navegador NO SOPORTA passkeys completamente</span><br>
+                    <p style="margin-top: 10px;">Problemas detectados:</p>
+                    <ul style="margin: 10px 0; color: #DC3545;">
+                        ${!hasPublicKey ? '<li>PublicKeyCredential API no disponible</li>' : ''}
+                        ${!hasCredentials ? '<li>navigator.credentials no disponible</li>' : ''}
+                        ${!hasCreate ? '<li>navigator.credentials.create no disponible</li>' : ''}
+                        ${!hasGet ? '<li>navigator.credentials.get no disponible</li>' : ''}
+                        ${!isSecure ? '<li>No estás en contexto seguro (HTTPS o localhost requerido)</li>' : ''}
+                    </ul>
+                    <p style="margin-top: 10px; color: #8B949E;">
+                        <strong>Soluciones:</strong><br>
+                        • Usa Chrome 67+, Safari 13+, Edge 18+ o Firefox 60+<br>
+                        • Accede mediante HTTPS (no HTTP)<br>
+                        • Actualiza tu navegador a la última versión
+                    </p>
+                `;
+            }
+        }
+
+        // Actualizar resumen después de medio segundo para dar tiempo a las verificaciones async
+        setTimeout(updateSummary, 500);
+    </script>
+</body>
+</html>

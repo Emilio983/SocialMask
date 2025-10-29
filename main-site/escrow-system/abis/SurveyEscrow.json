@@ -1,0 +1,139 @@
+{
+  "abi": [
+    {
+      "inputs": [{"name": "_spheToken", "type": "address"}],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "spheToken",
+      "outputs": [{"name": "", "type": "address"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"name": "surveyId", "type": "uint256"},
+        {"name": "amount", "type": "uint256"}
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"name": "surveyId", "type": "uint256"},
+        {"name": "winners", "type": "address[]"},
+        {"name": "amounts", "type": "uint256[]"}
+      ],
+      "name": "finalizeSurvey",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"name": "surveyId", "type": "uint256"},
+        {"name": "winners", "type": "address[]"},
+        {"name": "amounts", "type": "uint256[]"},
+        {"name": "start", "type": "uint256"},
+        {"name": "end", "type": "uint256"}
+      ],
+      "name": "payoutBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"name": "surveyId", "type": "uint256"},
+        {"name": "participant", "type": "address"}
+      ],
+      "name": "getDeposit",
+      "outputs": [{"name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"name": "surveyId", "type": "uint256"}],
+      "name": "getSurveyInfo",
+      "outputs": [
+        {"name": "totalDeposited", "type": "uint256"},
+        {"name": "totalPaidOut", "type": "uint256"},
+        {"name": "finalized", "type": "bool"},
+        {"name": "participantsCount", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{"name": "surveyId", "type": "uint256"}],
+      "name": "getParticipants",
+      "outputs": [{"name": "", "type": "address[]"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"name": "to", "type": "address"},
+        {"name": "amount", "type": "uint256"}
+      ],
+      "name": "emergencyWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalBalance",
+      "outputs": [{"name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "name": "surveyId", "type": "uint256"},
+        {"indexed": true, "name": "participant", "type": "address"},
+        {"indexed": false, "name": "amount", "type": "uint256"},
+        {"indexed": false, "name": "timestamp", "type": "uint256"}
+      ],
+      "name": "Deposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "name": "surveyId", "type": "uint256"},
+        {"indexed": false, "name": "totalDistributed", "type": "uint256"},
+        {"indexed": false, "name": "winnersCount", "type": "uint256"},
+        {"indexed": false, "name": "timestamp", "type": "uint256"}
+      ],
+      "name": "SurveyFinalized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "name": "surveyId", "type": "uint256"},
+        {"indexed": true, "name": "recipient", "type": "address"},
+        {"indexed": false, "name": "amount", "type": "uint256"},
+        {"indexed": false, "name": "timestamp", "type": "uint256"}
+      ],
+      "name": "Payout",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "name": "to", "type": "address"},
+        {"indexed": false, "name": "amount", "type": "uint256"},
+        {"indexed": false, "name": "timestamp", "type": "uint256"}
+      ],
+      "name": "EmergencyWithdraw",
+      "type": "event"
+    }
+  ]
+}

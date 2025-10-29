@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Client Demo - SocialMask</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- TweetNaCl -->
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
+    
+    <!-- Crypto Client -->
+    <link rel="stylesheet" href="/assets/css/crypto-client.css">
+    <script src="/assets/js/crypto/aes-gcm.js"></script>
+    <script src="/assets/js/crypto/x25519-wrapper.js"></script>
+    <script src="/assets/js/p2p/metadata-manager.js"></script>
+    <script src="/assets/js/crypto/crypto-client.js"></script>
+    <script src="/assets/js/crypto/crypto-client-ui.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .status-label {
+            color: #666;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value.success {
+            color: #4CAF50;
+        }
+
+        .status-value.error {
+            color: #f44336;
+        }
+
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .demo-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-btn:active {
+            transform: translateY(0);
+        }
+
+        .demo-btn i {
+            font-size: 24px;
+        }
+
+        .demo-btn.secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .demo-btn.secondary:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .info-box p {
+            color: #1976d2;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .demo-container {
+                padding: 20px;
+            }
+
+            .demo-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1><i class="fas fa-lock"></i> Crypto Client Demo</h1>
+        <p class="subtitle">End-to-End Encrypted File Sharing</p>
+
+        <div class="status" id="status">
+            <div class="status-item">
+                <span class="status-label">Status:</span>
+                <span class="status-value" id="statusValue">Not initialized</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">User ID:</span>
+                <span class="status-value" id="userId">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Keypair:</span>
+                <span class="status-value" id="keypairStatus">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Files Encrypted:</span>
+                <span class="status-value" id="filesCount">-</span>
+            </div>
+        </div>
+
+        <div class="demo-buttons">
+            <button class="demo-btn" onclick="uploadFile()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Upload Encrypted File
+            </button>
+
+            <button class="demo-btn" onclick="showStats()">
+                <i class="fas fa-chart-bar"></i>
+                View Statistics
+            </button>
+
+            <button class="demo-btn secondary" onclick="exportKeys()">
+                <i class="fas fa-download"></i>
+                Export Keys
+            </button>
+
+            <button class="demo-btn secondary" onclick="importKeys()">
+                <i class="fas fa-upload"></i>
+                Import Keys
+            </button>
+        </div>
+
+        <div class="info-box">
+            <p>
+                <strong>🔒 Secure & Private:</strong><br>
+                All files are encrypted on your device before upload. Only recipients with the correct keys can decrypt them.
+                Your private keys never leave your device.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize on page load
+        let initialized = false;
+        const TEST_USER_ID = 1; // For demo purposes
+
+        async function init() {
+            try {
+                await cryptoClientUI.init(TEST_USER_ID);
+                initialized = true;
+                
+                document.getElementById('statusValue').textContent = 'Ready';
+                document.getElementById('statusValue').classList.add('success');
+                document.getElementById('userId').textContent = TEST_USER_ID;
+                
+                await updateStatus();
+                
+                console.log('✅ Crypto Client initialized');
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('statusValue').textContent = 'Error';
+                document.getElementById('statusValue').classList.add('error');
+            }
+        }
+
+        async function updateStatus() {
+            try {
+                const stats = await cryptoClientUI.cryptoClient.getStats();
+                
+                document.getElementById('keypairStatus').textContent = 
+                    stats.hasKeyPair ? '✅ Generated' : '❌ Not generated';
+                document.getElementById('keypairStatus').classList.add(
+                    stats.hasKeyPair ? 'success' : 'error'
+                );
+                
+                document.getElementById('filesCount').textContent = stats.fileMetadataCount;
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        function uploadFile() {
+            if (!initialized) {
+                alert('Please wait for initialization');
+                return;
+            }
+
+            // Demo: upload file for recipient with ID 2
+            const recipientIds = [2];
+            
+            cryptoClientUI.showUploadDialog(recipientIds, async (result) => {
+                console.log('Upload result:', result);
+                await updateStatus();
+                
+                // Show download option
+                if (confirm('File uploaded! Do you want to test download?')) {
+                    await cryptoClientUI.downloadFile(result.cid, 'downloaded_file');
+                }
+            });
+        }
+
+        async function showStats() {
+            if (!initialized) {
+                alert('Please wait for initialization');
+                return;
+            }
+
+            await cryptoClientUI.showStats();
+        }
+
+        async function exportKeys() {
+            if (!initialized) {
+                alert('Please wait for initialization');
+                return;
+            }
+
+            await cryptoClientUI.exportKeys();
+        }
+
+        async function importKeys() {
+            await cryptoClientUI.importKeys();
+            
+            // Reinitialize after import
+            if (cryptoClientUI.cryptoClient && cryptoClientUI.cryptoClient.userId) {
+                await updateStatus();
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

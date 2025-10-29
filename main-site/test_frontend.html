@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Testing - Governance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-pass { color: #10b981; }
+        .test-fail { color: #ef4444; }
+        .test-pending { color: #f59e0b; }
+        .test-log { 
+            background: #1f2937; 
+            color: #e5e7eb; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            font-family: monospace; 
+            font-size: 0.875rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-3xl font-bold mb-2">Frontend Testing Suite</h1>
+            <p class="text-gray-600 mb-6">Governance System - FASE 6.5</p>
+            
+            <!-- Test Controls -->
+            <div class="flex gap-4 mb-6">
+                <button onclick="runAllTests()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-play mr-2"></i>Run All Tests
+                </button>
+                <button onclick="clearLog()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                    <i class="fas fa-trash mr-2"></i>Clear Log
+                </button>
+            </div>
+            
+            <!-- Test Summary -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <div class="text-sm text-gray-600">Total Tests</div>
+                    <div class="text-2xl font-bold" id="totalTests">0</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <div class="text-sm text-gray-600">Passed</div>
+                    <div class="text-2xl font-bold test-pass" id="passedTests">0</div>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4">
+                    <div class="text-sm text-gray-600">Failed</div>
+                    <div class="text-2xl font-bold test-fail" id="failedTests">0</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4">
+                    <div class="text-sm text-gray-600">Pending</div>
+                    <div class="text-2xl font-bold test-pending" id="pendingTests">0</div>
+                </div>
+            </div>
+            
+            <!-- Test Categories -->
+            <div class="space-y-4 mb-6">
+                <!-- Proposals Tests -->
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold">Proposals Tests</h3>
+                        <button onclick="runProposalsTests()" class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-play-circle"></i> Run
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div id="test-proposals-load" class="test-pending">⏳ Load proposals on page load</div>
+                        <div id="test-proposals-filter" class="test-pending">⏳ Filter by status</div>
+                        <div id="test-proposals-search" class="test-pending">⏳ Search functionality</div>
+                        <div id="test-proposals-pagination" class="test-pending">⏳ Pagination</div>
+                    </div>
+                </div>
+                
+                <!-- Modal Tests -->
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold">Modal Tests</h3>
+                        <button onclick="runModalTests()" class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-play-circle"></i> Run
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div id="test-modal-open" class="test-pending">⏳ Modal opens correctly</div>
+                        <div id="test-modal-data" class="test-pending">⏳ Modal displays data</div>
+                        <div id="test-modal-vote" class="test-pending">⏳ Vote buttons work</div>
+                        <div id="test-modal-close" class="test-pending">⏳ Modal closes</div>
+                    </div>
+                </div>
+                
+                <!-- Web3 Tests -->
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold">Web3 Integration Tests</h3>
+                        <button onclick="runWeb3Tests()" class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-play-circle"></i> Run
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div id="test-web3-detect" class="test-pending">⏳ MetaMask detection</div>
+                        <div id="test-web3-connect" class="test-pending">⏳ Wallet connection</div>
+                        <div id="test-web3-network" class="test-pending">⏳ Network detection</div>
+                        <div id="test-web3-balance" class="test-pending">⏳ Balance loading</div>
+                    </div>
+                </div>
+                
+                <!-- UI Components Tests -->
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold">UI Components Tests</h3>
+                        <button onclick="runUITests()" class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-play-circle"></i> Run
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div id="test-ui-wallet-button" class="test-pending">⏳ Wallet button renders</div>
+                        <div id="test-ui-network-badge" class="test-pending">⏳ Network badge renders</div>
+                        <div id="test-ui-stats" class="test-pending">⏳ Stats widget renders</div>
+                        <div id="test-ui-responsive" class="test-pending">⏳ Responsive design</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test Log -->
+            <div>
+                <h3 class="text-lg font-semibold mb-3">Test Log</h3>
+                <div id="testLog" class="test-log">
+                    <div>Ready to run tests...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let totalTests = 0;
+        let passedTests = 0;
+        let failedTests = 0;
+        let pendingTests = 0;
+        
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'pass' ? '✓' : type === 'fail' ? '✗' : type === 'warn' ? '⚠' : 'ℹ';
+            const color = type === 'pass' ? '#10b981' : type === 'fail' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#60a5fa';
+            
+            const line = document.createElement('div');
+            line.style.color = color;
+            line.textContent = `[${timestamp}] ${icon} ${message}`;
+            logElement.appendChild(line);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function updateStats() {
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = passedTests;
+            document.getElementById('failedTests').textContent = failedTests;
+            document.getElementById('pendingTests').textContent = pendingTests;
+        }
+        
+        function updateTestStatus(testId, passed) {
+            const element = document.getElementById(testId);
+            if (!element) return;
+            
+            if (passed) {
+                element.className = 'test-pass';
+                element.textContent = element.textContent.replace('⏳', '✓');
+                passedTests++;
+            } else {
+                element.className = 'test-fail';
+                element.textContent = element.textContent.replace('⏳', '✗');
+                failedTests++;
+            }
+            
+            pendingTests--;
+            updateStats();
+        }
+        
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '<div>Log cleared...</div>';
+            totalTests = 0;
+            passedTests = 0;
+            failedTests = 0;
+            pendingTests = 0;
+            updateStats();
+        }
+        
+        async function runAllTests() {
+            log('========================================', 'info');
+            log('Starting Full Test Suite...', 'info');
+            log('========================================', 'info');
+            
+            clearLog();
+            
+            await runProposalsTests();
+            await runModalTests();
+            await runWeb3Tests();
+            await runUITests();
+            
+            log('========================================', 'info');
+            log(`Test Suite Complete: ${passedTests}/${totalTests} passed`, passedTests === totalTests ? 'pass' : 'fail');
+            log('========================================', 'info');
+        }
+        
+        async function runProposalsTests() {
+            log('Starting Proposals Tests...', 'info');
+            
+            // Count tests
+            totalTests += 4;
+            pendingTests += 4;
+            updateStats();
+            
+            // Test 1: Load proposals
+            try {
+                log('Testing: Load proposals API...', 'info');
+                const response = await fetch('/api/governance/proposals.php');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('✓ Proposals loaded successfully', 'pass');
+                    updateTestStatus('test-proposals-load', true);
+                } else {
+                    log('✗ Failed to load proposals', 'fail');
+                    updateTestStatus('test-proposals-load', false);
+                }
+            } catch (error) {
+                log('✗ Error loading proposals: ' + error.message, 'fail');
+                updateTestStatus('test-proposals-load', false);
+            }
+            
+            // Test 2: Filter by status
+            try {
+                log('Testing: Filter by status...', 'info');
+                const response = await fetch('/api/governance/proposals.php?status=active');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✓ Filter by status works', 'pass');
+                    updateTestStatus('test-proposals-filter', true);
+                } else {
+                    log('✗ Filter failed', 'fail');
+                    updateTestStatus('test-proposals-filter', false);
+                }
+            } catch (error) {
+                log('✗ Error filtering: ' + error.message, 'fail');
+                updateTestStatus('test-proposals-filter', false);
+            }
+            
+            // Test 3: Search
+            try {
+                log('Testing: Search functionality...', 'info');
+                const response = await fetch('/api/governance/proposals.php?search=test');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✓ Search works', 'pass');
+                    updateTestStatus('test-proposals-search', true);
+                } else {
+                    log('✗ Search failed', 'fail');
+                    updateTestStatus('test-proposals-search', false);
+                }
+            } catch (error) {
+                log('✗ Error searching: ' + error.message, 'fail');
+                updateTestStatus('test-proposals-search', false);
+            }
+            
+            // Test 4: Pagination
+            try {
+                log('Testing: Pagination...', 'info');
+                const response = await fetch('/api/governance/proposals.php?limit=5&offset=0');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✓ Pagination works', 'pass');
+                    updateTestStatus('test-proposals-pagination', true);
+                } else {
+                    log('✗ Pagination failed', 'fail');
+                    updateTestStatus('test-proposals-pagination', false);
+                }
+            } catch (error) {
+                log('✗ Error with pagination: ' + error.message, 'fail');
+                updateTestStatus('test-proposals-pagination', false);
+            }
+        }
+        
+        async function runModalTests() {
+            log('Starting Modal Tests...', 'info');
+            
+            totalTests += 4;
+            pendingTests += 4;
+            updateStats();
+            
+            // These tests would need actual DOM manipulation
+            log('⚠ Modal tests require manual verification', 'warn');
+            
+            // Mark as pending for now
+            ['test-modal-open', 'test-modal-data', 'test-modal-vote', 'test-modal-close'].forEach(id => {
+                pendingTests--;
+                updateStats();
+            });
+        }
+        
+        async function runWeb3Tests() {
+            log('Starting Web3 Tests...', 'info');
+            
+            totalTests += 4;
+            pendingTests += 4;
+            updateStats();
+            
+            // Test MetaMask detection
+            if (typeof window.ethereum !== 'undefined') {
+                log('✓ MetaMask detected', 'pass');
+                updateTestStatus('test-web3-detect', true);
+            } else {
+                log('✗ MetaMask not detected', 'fail');
+                updateTestStatus('test-web3-detect', false);
+            }
+            
+            // Other Web3 tests require user interaction
+            log('⚠ Other Web3 tests require manual verification', 'warn');
+            ['test-web3-connect', 'test-web3-network', 'test-web3-balance'].forEach(id => {
+                pendingTests--;
+                updateStats();
+            });
+        }
+        
+        async function runUITests() {
+            log('Starting UI Tests...', 'info');
+            
+            totalTests += 4;
+            pendingTests += 4;
+            updateStats();
+            
+            log('⚠ UI tests require manual verification', 'warn');
+            ['test-ui-wallet-button', 'test-ui-network-badge', 'test-ui-stats', 'test-ui-responsive'].forEach(id => {
+                pendingTests--;
+                updateStats();
+            });
+        }
+        
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>

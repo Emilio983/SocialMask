@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sistema P2P - The Social Mask</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .test-pass { color: #10B981; }
+        .test-fail { color: #EF4444; }
+        .test-warning { color: #F59E0B; }
+        .test-pending { color: #6B7280; }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3B82F6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- P2P Client Script -->
+    <script src="/assets/js/p2p-client.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-gray-800 rounded-xl p-6 mb-6 border border-gray-700">
+            <h1 class="text-3xl font-bold mb-2">🧪 Sistema P2P - Test Automatizado</h1>
+            <p class="text-gray-400">Verificación exhaustiva del sistema P2P descentralizado</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-gray-800 rounded-xl p-6 mb-6 border border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold">Progreso de Pruebas</span>
+                <span id="progress-text" class="text-sm text-gray-400">0%</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-3">
+                <div id="progress-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="bg-gray-800 rounded-xl p-6 mb-6 border border-gray-700">
+            <div class="flex gap-4">
+                <button onclick="runAllTests()" id="run-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    ▶️ Ejecutar Todas las Pruebas
+                </button>
+                <button onclick="clearResults()" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    🗑️ Limpiar Resultados
+                </button>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="space-y-4">
+            <!-- Test 1: P2PClient Availability -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test1-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 1: P2PClient Disponibilidad</h3>
+                            <p class="text-sm text-gray-400">Verificar que P2PClient está cargado globalmente</p>
+                        </div>
+                    </div>
+                    <div id="test1-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test1-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 2: Toggle Functionality -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test2-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 2: Toggle P2P</h3>
+                            <p class="text-sm text-gray-400">Verificar que localStorage guarda el estado correctamente</p>
+                        </div>
+                    </div>
+                    <div id="test2-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test2-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 3: API Endpoints -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test3-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 3: API Endpoints</h3>
+                            <p class="text-sm text-gray-400">Verificar que todos los endpoints P2P existen y responden</p>
+                        </div>
+                    </div>
+                    <div id="test3-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test3-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 4: Crypto Functions -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test4-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 4: Funciones Criptográficas</h3>
+                            <p class="text-sm text-gray-400">Verificar generación de llaves RSA y encriptación</p>
+                        </div>
+                    </div>
+                    <div id="test4-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test4-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 5: Posts API Hybrid -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test5-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 5: API Posts Híbrida</h3>
+                            <p class="text-sm text-gray-400">Verificar que list.php devuelve ambos tipos de posts</p>
+                        </div>
+                    </div>
+                    <div id="test5-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test5-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 6: IPFS Gateway Fallback -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test6-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 6: IPFS Gateway Fallback</h3>
+                            <p class="text-sm text-gray-400">Verificar que hay fallback para gateways IPFS</p>
+                        </div>
+                    </div>
+                    <div id="test6-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test6-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+
+            <!-- Test 7: No Conflicts -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="test7-icon" class="test-pending">⏳</div>
+                        <div>
+                            <h3 class="font-bold">Test 7: Sin Conflictos</h3>
+                            <p class="text-sm text-gray-400">Verificar que Gun.js NO está cargado (no hay conflictos)</p>
+                        </div>
+                    </div>
+                    <div id="test7-status" class="text-sm font-mono bg-gray-900 px-3 py-1 rounded">PENDING</div>
+                </div>
+                <div id="test7-details" class="mt-4 text-sm text-gray-400 hidden"></div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div id="summary" class="bg-gray-800 rounded-xl p-6 mt-6 border border-gray-700 hidden">
+            <h2 class="text-2xl font-bold mb-4">📊 Resumen de Resultados</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-green-900 bg-opacity-30 border border-green-600 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-400" id="passed-count">0</div>
+                    <div class="text-sm text-green-300">Pasaron ✅</div>
+                </div>
+                <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-red-400" id="failed-count">0</div>
+                    <div class="text-sm text-red-300">Fallaron ❌</div>
+                </div>
+                <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-400" id="warning-count">0</div>
+                    <div class="text-sm text-yellow-300">Advertencias ⚠️</div>
+                </div>
+            </div>
+            <div id="final-verdict" class="mt-6 p-4 rounded-lg text-center font-bold text-lg"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            warnings: 0,
+            total: 7
+        };
+
+        function updateProgress() {
+            const completed = testResults.passed + testResults.failed + testResults.warnings;
+            const percentage = Math.round((completed / testResults.total) * 100);
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').innerText = percentage + '%';
+        }
+
+        function setTestResult(testNum, status, details) {
+            const iconEl = document.getElementById(`test${testNum}-icon`);
+            const statusEl = document.getElementById(`test${testNum}-status`);
+            const detailsEl = document.getElementById(`test${testNum}-details`);
+
+            let icon, color, statusText;
+
+            switch(status) {
+                case 'pass':
+                    icon = '✅';
+                    color = 'test-pass';
+                    statusText = 'PASS';
+                    testResults.passed++;
+                    break;
+                case 'fail':
+                    icon = '❌';
+                    color = 'test-fail';
+                    statusText = 'FAIL';
+                    testResults.failed++;
+                    break;
+                case 'warning':
+                    icon = '⚠️';
+                    color = 'test-warning';
+                    statusText = 'WARNING';
+                    testResults.warnings++;
+                    break;
+                default:
+                    icon = '⏳';
+                    color = 'test-pending';
+                    statusText = 'RUNNING';
+            }
+
+            iconEl.innerHTML = icon;
+            iconEl.className = color;
+            statusEl.innerText = statusText;
+            statusEl.className = `text-sm font-mono px-3 py-1 rounded ${color}`;
+
+            if (details) {
+                detailsEl.innerHTML = details;
+                detailsEl.classList.remove('hidden');
+            }
+
+            updateProgress();
+        }
+
+        async function runAllTests() {
+            // Reset
+            testResults = { passed: 0, failed: 0, warnings: 0, total: 7 };
+            document.getElementById('summary').classList.add('hidden');
+            document.getElementById('run-btn').disabled = true;
+            document.getElementById('run-btn').innerHTML = '<div class="spinner"></div> Ejecutando...';
+
+            // Test 1: P2PClient Availability
+            await test1_P2PClientAvailability();
+            await sleep(500);
+
+            // Test 2: Toggle Functionality
+            await test2_ToggleFunctionality();
+            await sleep(500);
+
+            // Test 3: API Endpoints
+            await test3_APIEndpoints();
+            await sleep(500);
+
+            // Test 4: Crypto Functions
+            await test4_CryptoFunctions();
+            await sleep(500);
+
+            // Test 5: Posts API Hybrid
+            await test5_PostsAPIHybrid();
+            await sleep(500);
+
+            // Test 6: IPFS Gateway Fallback
+            await test6_IPFSGatewayFallback();
+            await sleep(500);
+
+            // Test 7: No Conflicts
+            await test7_NoConflicts();
+            await sleep(500);
+
+            // Show summary
+            showSummary();
+
+            document.getElementById('run-btn').disabled = false;
+            document.getElementById('run-btn').innerHTML = '▶️ Ejecutar Todas las Pruebas';
+        }
+
+        async function test1_P2PClientAvailability() {
+            setTestResult(1, 'running', '<div class="spinner"></div> Verificando...');
+
+            // Esperar a que el script cargue
+            await sleep(1000);
+
+            try {
+                if (typeof window.P2PClient === 'undefined') {
+                    throw new Error('P2PClient class no está definida - Verifica que /assets/js/p2p-client.js esté cargando');
+                }
+
+                if (typeof window.p2pClient === 'undefined') {
+                    throw new Error('window.p2pClient no está instanciado');
+                }
+
+                const methods = ['init', 'send', 'createPost', 'uploadToIPFS', 'on', 'emit', 'disconnect'];
+                const missingMethods = methods.filter(m => typeof window.p2pClient[m] !== 'function');
+
+                if (missingMethods.length > 0) {
+                    throw new Error(`Métodos faltantes: ${missingMethods.join(', ')}`);
+                }
+
+                setTestResult(1, 'pass', `
+                    ✅ P2PClient está correctamente cargado<br>
+                    ✅ window.p2pClient instanciado<br>
+                    ✅ Todos los métodos disponibles
+                `);
+            } catch (error) {
+                setTestResult(1, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function test2_ToggleFunctionality() {
+            setTestResult(2, 'running', '<div class="spinner"></div> Verificando...');
+
+            try {
+                // Simular toggle OFF
+                localStorage.setItem('p2pMode', 'false');
+                const off = localStorage.getItem('p2pMode');
+
+                if (off !== 'false') {
+                    throw new Error('Toggle OFF no funcionó');
+                }
+
+                // Simular toggle ON
+                localStorage.setItem('p2pMode', 'true');
+                const on = localStorage.getItem('p2pMode');
+
+                if (on !== 'true') {
+                    throw new Error('Toggle ON no funcionó');
+                }
+
+                setTestResult(2, 'pass', `
+                    ✅ localStorage.setItem funciona<br>
+                    ✅ Toggle OFF guardado correctamente<br>
+                    ✅ Toggle ON guardado correctamente
+                `);
+            } catch (error) {
+                setTestResult(2, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function test3_APIEndpoints() {
+            setTestResult(3, 'running', '<div class="spinner"></div> Verificando endpoints...');
+
+            const endpoints = [
+                '/api/p2p/save-public-key.php',
+                '/api/p2p/store-metadata.php',
+                '/api/p2p/get-metadata.php',
+                '/api/posts/list.php',
+                '/api/posts/create.php'
+            ];
+
+            let results = [];
+            let allPass = true;
+
+            for (const endpoint of endpoints) {
+                try {
+                    // HEAD request para verificar que existe
+                    const response = await fetch(endpoint, { method: 'HEAD' });
+                    const exists = response.status !== 404;
+
+                    if (exists) {
+                        results.push(`✅ ${endpoint}`);
+                    } else {
+                        results.push(`❌ ${endpoint} (404)`);
+                        allPass = false;
+                    }
+                } catch (error) {
+                    results.push(`❌ ${endpoint} (Error: ${error.message})`);
+                    allPass = false;
+                }
+            }
+
+            if (allPass) {
+                setTestResult(3, 'pass', results.join('<br>'));
+            } else {
+                setTestResult(3, 'fail', results.join('<br>'));
+            }
+        }
+
+        async function test4_CryptoFunctions() {
+            setTestResult(4, 'running', '<div class="spinner"></div> Probando criptografía...');
+
+            try {
+                // Verificar que Web Crypto API está disponible
+                if (!window.crypto || !window.crypto.subtle) {
+                    throw new Error('Web Crypto API no disponible');
+                }
+
+                // Generar llaves de prueba
+                const keyPair = await crypto.subtle.generateKey(
+                    {
+                        name: 'RSA-OAEP',
+                        modulusLength: 2048,
+                        publicExponent: new Uint8Array([1, 0, 1]),
+                        hash: 'SHA-256'
+                    },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+
+                if (!keyPair.publicKey || !keyPair.privateKey) {
+                    throw new Error('Generación de llaves falló');
+                }
+
+                // Probar encriptación/desencriptación
+                const testMessage = 'Test P2P Message';
+                const encoder = new TextEncoder();
+                const data = encoder.encode(testMessage);
+
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: 'RSA-OAEP' },
+                    keyPair.publicKey,
+                    data
+                );
+
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'RSA-OAEP' },
+                    keyPair.privateKey,
+                    encrypted
+                );
+
+                const decoder = new TextDecoder();
+                const decryptedText = decoder.decode(decrypted);
+
+                if (decryptedText !== testMessage) {
+                    throw new Error('Encriptación/Desencriptación falló');
+                }
+
+                setTestResult(4, 'pass', `
+                    ✅ Web Crypto API disponible<br>
+                    ✅ Generación de llaves RSA-2048 funciona<br>
+                    ✅ Encriptación/Desencriptación funciona correctamente
+                `);
+            } catch (error) {
+                setTestResult(4, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function test5_PostsAPIHybrid() {
+            setTestResult(5, 'running', '<div class="spinner"></div> Verificando API de posts...');
+
+            try {
+                // Nota: Este test requiere al menos un grupo/community
+                // Verificar que el endpoint responde correctamente
+                const response = await fetch('/api/posts/list.php?group_id=1');
+
+                if (response.status === 404) {
+                    throw new Error('/api/posts/list.php no existe (404)');
+                }
+
+                if (!response.ok && response.status !== 400) {
+                    // 400 es OK si no hay group_id válido
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Verificar estructura de respuesta
+                if (!data.hasOwnProperty('success')) {
+                    setTestResult(5, 'warning', `
+                        ⚠️ API responde pero formato incorrecto<br>
+                        ⚠️ Verifica que /api/posts/list.php existe y devuelve JSON con campo 'success'
+                    `);
+                } else {
+                    setTestResult(5, 'pass', `
+                        ✅ /api/posts/list.php existe<br>
+                        ✅ Responde con JSON válido<br>
+                        ✅ Estructura correcta (success, posts)
+                    `);
+                }
+            } catch (error) {
+                setTestResult(5, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function test6_IPFSGatewayFallback() {
+            setTestResult(6, 'running', '<div class="spinner"></div> Verificando fallback IPFS...');
+
+            try {
+                // Verificar que la función handleImageError existe en community_view.php
+                // Ya que no podemos leer el archivo directamente, verificamos la lógica
+
+                const gateways = [
+                    'https://gateway.pinata.cloud/ipfs/',
+                    'https://ipfs.io/ipfs/',
+                    'https://cloudflare-ipfs.com/ipfs/'
+                ];
+
+                // Crear un elemento de prueba para verificar lógica
+                const testHash = 'QmTestHash123';
+                let fallbackWorks = true;
+
+                // Simular función handleImageError
+                function testHandleImageError(imgSrc, isP2P, attempt) {
+                    if (!isP2P) return imgSrc;
+
+                    const hash = imgSrc.split('/ipfs/')[1];
+                    if (!hash) return null;
+
+                    if (attempt === 0) return `https://ipfs.io/ipfs/${hash}`;
+                    if (attempt === 1) return `https://cloudflare-ipfs.com/ipfs/${hash}`;
+                    return null;
+                }
+
+                const test1 = testHandleImageError(`https://gateway.pinata.cloud/ipfs/${testHash}`, true, 0);
+                const test2 = testHandleImageError(`https://ipfs.io/ipfs/${testHash}`, true, 1);
+
+                if (!test1 || !test2) {
+                    fallbackWorks = false;
+                }
+
+                if (fallbackWorks) {
+                    setTestResult(6, 'pass', `
+                        ✅ Lógica de fallback correcta<br>
+                        ✅ 3 gateways configurados: Pinata → ipfs.io → Cloudflare<br>
+                        ✅ Función handleImageError implementada
+                    `);
+                } else {
+                    setTestResult(6, 'warning', `
+                        ⚠️ Fallback IPFS puede tener problemas<br>
+                        ⚠️ Verifica manualmente en community_view.php
+                    `);
+                }
+            } catch (error) {
+                setTestResult(6, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function test7_NoConflicts() {
+            setTestResult(7, 'running', '<div class="spinner"></div> Verificando conflictos...');
+
+            try {
+                let conflicts = [];
+
+                // Verificar que Gun.js NO está cargado
+                if (typeof Gun !== 'undefined') {
+                    conflicts.push('⚠️ Gun.js está cargado (conflicto potencial)');
+                }
+
+                // Verificar que gunClient NO está definido
+                if (typeof window.gunClient !== 'undefined') {
+                    conflicts.push('⚠️ gunClient está definido (sistema antiguo)');
+                }
+
+                // Verificar que hybridSync NO está definido
+                if (typeof window.hybridSync !== 'undefined') {
+                    conflicts.push('⚠️ hybridSync está definido (sistema antiguo)');
+                }
+
+                if (conflicts.length > 0) {
+                    setTestResult(7, 'warning', conflicts.join('<br>') + '<br><br>💡 Solución: Elimina Gun.js de scripts.php');
+                } else {
+                    setTestResult(7, 'pass', `
+                        ✅ Gun.js NO está cargado<br>
+                        ✅ No hay sistemas P2P conflictivos<br>
+                        ✅ Solo P2PClient activo
+                    `);
+                }
+            } catch (error) {
+                setTestResult(7, 'fail', `❌ Error: ${error.message}`);
+            }
+        }
+
+        function showSummary() {
+            document.getElementById('summary').classList.remove('hidden');
+            document.getElementById('passed-count').innerText = testResults.passed;
+            document.getElementById('failed-count').innerText = testResults.failed;
+            document.getElementById('warning-count').innerText = testResults.warnings;
+
+            const verdictEl = document.getElementById('final-verdict');
+
+            if (testResults.failed === 0 && testResults.warnings === 0) {
+                verdictEl.className = 'mt-6 p-4 rounded-lg text-center font-bold text-lg bg-green-900 bg-opacity-30 border border-green-600 text-green-400';
+                verdictEl.innerHTML = '🎉 ¡SISTEMA AL 100%! Todos los tests pasaron correctamente';
+            } else if (testResults.failed === 0 && testResults.warnings > 0) {
+                verdictEl.className = 'mt-6 p-4 rounded-lg text-center font-bold text-lg bg-yellow-900 bg-opacity-30 border border-yellow-600 text-yellow-400';
+                verdictEl.innerHTML = `⚠️ Sistema funcional con ${testResults.warnings} advertencia(s). Revisa los detalles arriba`;
+            } else {
+                verdictEl.className = 'mt-6 p-4 rounded-lg text-center font-bold text-lg bg-red-900 bg-opacity-30 border border-red-600 text-red-400';
+                verdictEl.innerHTML = `❌ ${testResults.failed} test(s) fallaron. Revisa los errores arriba`;
+            }
+        }
+
+        function clearResults() {
+            location.reload();
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gun.js P2P Test - TheSocialMask</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0D1117 0%, #1a1f2e 100%);
+            min-height: 100vh;
+        }
+        .log-entry {
+            padding: 8px 12px;
+            border-left: 3px solid #3B82F6;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .log-success { border-left-color: #10B981; background-color: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .log-error { border-left-color: #EF4444; background-color: rgba(239, 68, 68, 0.1); color: #EF4444; }
+        .log-info { border-left-color: #3B82F6; background-color: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+        .log-warning { border-left-color: #F59E0B; background-color: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🌐 Gun.js P2P Test</h1>
+            <p class="text-gray-400">Test completo del cliente Gun.js para TheSocialMask</p>
+            <div class="mt-4 flex items-center gap-4">
+                <div id="connection-status" class="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg">
+                    <div id="status-dot" class="w-3 h-3 rounded-full bg-gray-500"></div>
+                    <span id="status-text" class="text-white text-sm">Desconectado</span>
+                </div>
+                <button onclick="clearLogs()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors">
+                    Limpiar Logs
+                </button>
+            </div>
+        </header>
+
+        <!-- Control Panel -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Connection Tests -->
+            <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                <h3 class="text-xl font-bold text-white mb-4">🔌 Conexión</h3>
+                <div class="space-y-3">
+                    <button onclick="testInit()" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                        Inicializar Gun.js
+                    </button>
+                    <button onclick="testStats()" class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                        Ver Estadísticas
+                    </button>
+                    <button onclick="testDisconnect()" class="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                        Desconectar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts Tests -->
+            <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                <h3 class="text-xl font-bold text-white mb-4">📝 Posts</h3>
+                <div class="space-y-3">
+                    <button onclick="testCreatePost()" class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors">
+                        Crear Post
+                    </button>
+                    <button onclick="testListenPosts()" class="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+                        Escuchar Posts
+                    </button>
+                    <button onclick="testStopListeners()" class="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors">
+                        Detener Listeners
+                    </button>
+                </div>
+            </div>
+
+            <!-- Communities Tests -->
+            <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                <h3 class="text-xl font-bold text-white mb-4">👥 Communities</h3>
+                <div class="space-y-3">
+                    <button onclick="testCreateCommunity()" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors">
+                        Crear Community
+                    </button>
+                    <button onclick="testListenCommunities()" class="w-full px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors">
+                        Escuchar Communities
+                    </button>
+                    <button onclick="testRunAll()" class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all">
+                        ▶️ Ejecutar Todo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-time Log -->
+        <section class="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">📊 Logs en Tiempo Real</h3>
+                <span id="log-count" class="text-gray-400 text-sm">0 eventos</span>
+            </div>
+            <div id="logs" class="bg-gray-900/50 rounded-lg p-4 max-h-96 overflow-y-auto space-y-2">
+                <div class="text-gray-500 text-center py-8">Ejecuta algún test para ver los logs...</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Gun.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    
+    <!-- Gun.js Client -->
+    <script src="../assets/js/gun-client.js"></script>
+
+    <script>
+        let logCount = 0;
+        let postListenerId = null;
+        let communityListenerId = null;
+
+        // ============================================
+        // LOG SYSTEM
+        // ============================================
+        function log(message, type = 'info') {
+            const logsContainer = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            // Eliminar el mensaje de "sin logs"
+            const emptyState = logsContainer.querySelector('.text-gray-500');
+            if (emptyState) emptyState.remove();
+            
+            logsContainer.insertBefore(logEntry, logsContainer.firstChild);
+            
+            logCount++;
+            document.getElementById('log-count').textContent = `${logCount} eventos`;
+        }
+
+        function clearLogs() {
+            const logsContainer = document.getElementById('logs');
+            logsContainer.innerHTML = '<div class="text-gray-500 text-center py-8">Ejecuta algún test para ver los logs...</div>';
+            logCount = 0;
+            document.getElementById('log-count').textContent = '0 eventos';
+            log('Logs limpiados', 'info');
+        }
+
+        function updateConnectionStatus(connected, state = null) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            
+            dot.classList.remove('bg-gray-500', 'bg-yellow-500', 'bg-green-500');
+            
+            if (state === 'connecting') {
+                dot.classList.add('bg-yellow-500');
+                text.textContent = 'Conectando...';
+            } else if (connected) {
+                dot.classList.add('bg-green-500');
+                text.textContent = 'Conectado a Gun.js';
+            } else {
+                dot.classList.add('bg-gray-500');
+                text.textContent = 'Desconectado';
+            }
+        }
+
+        // ============================================
+        // TEST FUNCTIONS
+        // ============================================
+        
+        async function testInit() {
+            log('Inicializando Gun.js...', 'info');
+            updateConnectionStatus(false, 'connecting');
+            
+            try {
+                const relayUrl = 'http://localhost:8765/gun';
+                const success = await gunClient.init(relayUrl);
+                
+                if (success) {
+                    log('✅ Gun.js conectado exitosamente!', 'success');
+                    log(`📡 Relay URL: ${relayUrl}`, 'info');
+                    updateConnectionStatus(true);
+                } else {
+                    log('❌ No se pudo conectar a Gun.js', 'error');
+                    updateConnectionStatus(false);
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                updateConnectionStatus(false);
+            }
+        }
+
+        async function testStats() {
+            if (!gunClient.isConnected) {
+                log('⚠️ Debes conectarte primero', 'warning');
+                return;
+            }
+            
+            log('Obteniendo estadísticas...', 'info');
+            const stats = gunClient.getStats();
+            log(`📊 Listeners activos: ${stats.listeners}`, 'success');
+            log(`🔌 Estado: ${stats.isConnected ? 'Conectado' : 'Desconectado'}`, 'success');
+        }
+
+        function testCreatePost() {
+            if (!gunClient.isConnected) {
+                log('⚠️ Debes conectarte primero', 'warning');
+                return;
+            }
+            
+            const postData = {
+                author: 'TestUser',
+                content: `Post de prueba generado a las ${new Date().toLocaleTimeString()}`,
+                likes: 0,
+                timestamp: Date.now()
+            };
+            
+            log('Creando post...', 'info');
+            const post = gunClient.createPost(postData);
+            log(`✅ Post creado con ID: ${post.id}`, 'success');
+            log(`📝 Contenido: "${post.content}"`, 'info');
+        }
+
+        function testListenPosts() {
+            if (!gunClient.isConnected) {
+                log('⚠️ Debes conectarte primero', 'warning');
+                return;
+            }
+            
+            log('Activando listener de posts...', 'info');
+            postListenerId = gunClient.listenToPosts((post) => {
+                log(`🆕 Nuevo post detectado: "${post.content}" (por ${post.author})`, 'success');
+            });
+            log(`👂 Listener de posts activo (ID: ${postListenerId})`, 'success');
+        }
+
+        function testCreateCommunity() {
+            if (!gunClient.isConnected) {
+                log('⚠️ Debes conectarte primero', 'warning');
+                return;
+            }
+            
+            const communityData = {
+                name: `Test Community ${Math.floor(Math.random() * 1000)}`,
+                description: 'Comunidad de prueba para Gun.js',
+                creator: 'TestUser',
+                members: 1,
+                timestamp: Date.now()
+            };
+            
+            log('Creando comunidad...', 'info');
+            const community = gunClient.createCommunity(communityData);
+            log(`✅ Comunidad creada: "${community.name}"`, 'success');
+        }
+
+        function testListenCommunities() {
+            if (!gunClient.isConnected) {
+                log('⚠️ Debes conectarte primero', 'warning');
+                return;
+            }
+            
+            log('Activando listener de comunidades...', 'info');
+            communityListenerId = gunClient.listenToCommunities((community) => {
+                log(`🆕 Nueva comunidad: "${community.name}"`, 'success');
+            });
+            log(`👂 Listener de comunidades activo (ID: ${communityListenerId})`, 'success');
+        }
+
+        function testStopListeners() {
+            log('Deteniendo todos los listeners...', 'warning');
+            gunClient.stopAllListeners();
+            postListenerId = null;
+            communityListenerId = null;
+            log('✅ Todos los listeners detenidos', 'success');
+        }
+
+        function testDisconnect() {
+            log('Desconectando de Gun.js...', 'warning');
+            gunClient.disconnect();
+            updateConnectionStatus(false);
+            log('✅ Desconectado', 'success');
+        }
+
+        async function testRunAll() {
+            log('🚀 Ejecutando batería completa de tests...', 'info');
+            
+            // Test 1: Inicializar
+            await testInit();
+            await sleep(1000);
+            
+            // Test 2: Stats
+            testStats();
+            await sleep(500);
+            
+            // Test 3: Activar listeners
+            testListenPosts();
+            testListenCommunities();
+            await sleep(500);
+            
+            // Test 4: Crear contenido
+            testCreatePost();
+            await sleep(500);
+            testCreatePost();
+            await sleep(500);
+            testCreateCommunity();
+            await sleep(1000);
+            
+            // Test 5: Stats final
+            testStats();
+            
+            log('✅ Batería de tests completada!', 'success');
+            log('💡 Abre otra pestaña de este test para ver sincronización en tiempo real', 'info');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Log inicial
+        log('🌐 Test de Gun.js cargado', 'success');
+        log('💡 Haz clic en "Inicializar Gun.js" para conectar', 'info');
+    </script>
+</body>
+</html>

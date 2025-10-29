@@ -1,0 +1,411 @@
+openapi: 3.0.0
+info:
+  title: Zcash Seedless Wallet API
+  version: 1.0.0
+  description: Non-custodial Zcash wallet backend API
+  contact:
+    name: API Support
+    url: https://zcash.socialmask.org
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://zcash.socialmask.org
+    description: Production server
+
+tags:
+  - name: health
+    description: Health check endpoints
+  - name: blockchain
+    description: Blockchain information
+  - name: transactions
+    description: Transaction operations
+  - name: users
+    description: User management
+  - name: credentials
+    description: WebAuthn credential management
+  - name: wallets
+    description: Wallet operations
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [health]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  database:
+                    type: string
+                    example: connected
+        '503':
+          description: Service is unhealthy
+
+  /api/blocks/head:
+    get:
+      summary: Get current blockchain head
+      tags: [blockchain]
+      responses:
+        '200':
+          description: Current block head
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  height:
+                    type: integer
+                    example: 2500000
+                  hash:
+                    type: string
+                    example: "0000000000000000000000000000000000000000000000000000000000000000"
+                  timestamp:
+                    type: integer
+                    example: 1234567890
+
+  /api/tx/submit:
+    post:
+      summary: Submit a signed transaction
+      tags: [transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - rawTxHex
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                rawTxHex:
+                  type: string
+                  pattern: '^[0-9a-fA-F]+$'
+                  description: Raw transaction hex
+                metadata:
+                  type: object
+                  properties:
+                    direction:
+                      type: string
+                      enum: [incoming, outgoing]
+                    amount_zats:
+                      type: integer
+                      minimum: 0
+                    to_addr:
+                      type: string
+                    memo:
+                      type: string
+                      maxLength: 512
+      responses:
+        '200':
+          description: Transaction submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  txid:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, confirmed, failed]
+        '400':
+          description: Invalid request
+        '429':
+          description: Rate limit exceeded
+
+  /api/tx/{txid}:
+    get:
+      summary: Get transaction by ID
+      tags: [transactions]
+      parameters:
+        - name: txid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+
+  /api/tx/user/{userId}:
+    get:
+      summary: Get user transaction history
+      tags: [transactions]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  total:
+                    type: integer
+
+  /api/users:
+    post:
+      summary: Create new user
+      tags: [users]
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  created_at:
+                    type: string
+                    format: date-time
+
+  /api/credentials:
+    post:
+      summary: Register device credential
+      tags: [credentials]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - credentialId
+                - publicKey
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                credentialId:
+                  type: string
+                  description: Base64-encoded credential ID
+                publicKey:
+                  type: string
+                  description: Base64-encoded public key
+                deviceName:
+                  type: string
+                  maxLength: 255
+      responses:
+        '201':
+          description: Credential registered
+        '409':
+          description: Credential already exists
+
+  /api/credentials/{credentialId}:
+    get:
+      summary: Get credential by ID
+      tags: [credentials]
+      parameters:
+        - name: credentialId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Credential details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+        '404':
+          description: Credential not found
+
+  /api/wallets:
+    post:
+      summary: Create or update wallet
+      tags: [wallets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - ua
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                ua:
+                  type: string
+                  description: Unified Address
+                spendingKeyEnc:
+                  type: string
+                  format: byte
+                  description: Base64-encoded encrypted spending key
+                ivkEnc:
+                  type: string
+                  format: byte
+                  description: Base64-encoded encrypted IVK
+                ovkEnc:
+                  type: string
+                  format: byte
+                  description: Base64-encoded encrypted OVK
+      responses:
+        '200':
+          description: Wallet created/updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+
+  /api/wallets/{userId}:
+    get:
+      summary: Get wallet by user ID
+      tags: [wallets]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Wallet details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '404':
+          description: Wallet not found
+
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        txid:
+          type: string
+        direction:
+          type: string
+          enum: [incoming, outgoing]
+        amount_zats:
+          type: integer
+        to_addr:
+          type: string
+        from_addr:
+          type: string
+        memo:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        block_height:
+          type: integer
+        confirmations:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Credential:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        credential_id:
+          type: string
+        public_key:
+          type: string
+        counter:
+          type: integer
+        device_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_used:
+          type: string
+          format: date-time
+
+    Wallet:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        ua:
+          type: string
+          description: Unified Address
+        backup_uploaded:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    # For future: Add API key or JWT auth if needed
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Signature Governance - Test Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/multisig.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .connection-status {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        .btn-connect {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        
+        .test-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .test-btn {
+            padding: 16px 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .test-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-2px);
+        }
+        
+        .test-btn i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔐 Multi-Signature Governance</h1>
+            <p>Test Interface for 3-of-5 Multi-Sig System</p>
+            
+            <div class="connection-status">
+                <div class="status-item">
+                    <span class="status-dot" id="wallet-status"></span>
+                    <span id="wallet-text">Wallet Disconnected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="contract-status"></span>
+                    <span id="contract-text">Contract Not Set</span>
+                </div>
+                <button class="btn-connect" onclick="connectWallet()">
+                    <i class="fas fa-wallet"></i> Connect Wallet
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="section">
+            <h2>📊 Multi-Sig Statistics</h2>
+            <div class="multisig-stats">
+                <div class="stat-box">
+                    <div class="value" id="total-proposals">0</div>
+                    <div class="label">Total Proposals</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="pending-proposals">0</div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="approved-proposals">0</div>
+                    <div class="label">Approved</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="executed-proposals">0</div>
+                    <div class="label">Executed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Actions -->
+        <div class="section">
+            <h2>🧪 Test Actions</h2>
+            <div class="test-actions">
+                <button class="test-btn" onclick="testCreateTreasuryProposal()">
+                    <i class="fas fa-coins"></i> Create Treasury Proposal
+                </button>
+                <button class="test-btn" onclick="testCreateParameterProposal()">
+                    <i class="fas fa-sliders-h"></i> Create Parameter Proposal
+                </button>
+                <button class="test-btn" onclick="testCreateEmergencyProposal()">
+                    <i class="fas fa-exclamation-triangle"></i> Create Emergency Proposal
+                </button>
+                <button class="test-btn" onclick="loadAllProposals()">
+                    <i class="fas fa-sync"></i> Refresh Proposals
+                </button>
+            </div>
+        </div>
+
+        <!-- Proposals List -->
+        <div class="section">
+            <h2>📋 Active Proposals</h2>
+            <div id="multisig-proposals"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="multisig-loader"></div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/multisig-ui.js"></script>
+    <script>
+        let userAddress = null;
+        const contractAddress = '0x0000000000000000000000000000000000000000'; // Replace with deployed contract
+
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                alert('MetaMask not installed!');
+                return;
+            }
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+                
+                document.getElementById('wallet-status').classList.add('connected');
+                document.getElementById('wallet-text').textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                
+                await multiSigUI.init(contractAddress);
+                updateStats();
+                
+            } catch (error) {
+                console.error('Failed to connect:', error);
+                alert('Failed to connect wallet');
+            }
+        }
+
+        async function testCreateTreasuryProposal() {
+            if (!userAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            const proposal = {
+                proposalType: 'TREASURY_WITHDRAWAL',
+                title: 'Withdraw 10 ETH for Development',
+                description: 'Request to withdraw 10 ETH from treasury to fund Q4 development initiatives.',
+                targetContract: '0x1234567890123456789012345678901234567890',
+                ethValue: '10',
+                functionData: '0x',
+                durationDays: 7
+            };
+
+            try {
+                await multiSigUI.createProposal(proposal);
+                updateStats();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function testCreateParameterProposal() {
+            if (!userAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            const proposal = {
+                proposalType: 'PARAMETER_CHANGE',
+                title: 'Change Voting Period to 5 Days',
+                description: 'Proposal to change the voting period from 3 days to 5 days for better participation.',
+                targetContract: '0x1234567890123456789012345678901234567890',
+                ethValue: '0',
+                functionData: '0xabcdef',
+                durationDays: 7
+            };
+
+            try {
+                await multiSigUI.createProposal(proposal);
+                updateStats();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function testCreateEmergencyProposal() {
+            if (!userAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            const proposal = {
+                proposalType: 'EMERGENCY_ACTION',
+                title: 'Emergency: Pause Trading',
+                description: 'Emergency proposal to pause trading due to detected vulnerability.',
+                targetContract: '0x1234567890123456789012345678901234567890',
+                ethValue: '0',
+                functionData: '0x',
+                durationDays: 1
+            };
+
+            try {
+                await multiSigUI.createProposal(proposal);
+                updateStats();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAllProposals() {
+            await multiSigUI.loadPendingProposals();
+            updateStats();
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/governance/multisig-list.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const proposals = result.proposals;
+                    document.getElementById('total-proposals').textContent = proposals.length;
+                    document.getElementById('pending-proposals').textContent = 
+                        proposals.filter(p => p.status === 'PENDING').length;
+                    document.getElementById('approved-proposals').textContent = 
+                        proposals.filter(p => p.status === 'APPROVED').length;
+                    document.getElementById('executed-proposals').textContent = 
+                        proposals.filter(p => p.status === 'EXECUTED').length;
+                }
+            } catch (error) {
+                console.error('Failed to update stats:', error);
+            }
+        }
+
+        // Auto-update every 30 seconds
+        setInterval(() => {
+            if (userAddress) {
+                loadAllProposals();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

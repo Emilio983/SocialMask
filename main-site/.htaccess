@@ -1,0 +1,95 @@
+# ============================================
+# SocialMask - Apache Configuration
+# ============================================
+
+# Habilitar reescritura de URLs
+RewriteEngine On
+RewriteBase /
+
+# Configuración de seguridad
+# Denegar acceso a archivos sensibles
+<Files "connection.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files ".env">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Bloquear acceso a archivos de configuración
+<FilesMatch "\.(env|sql|md|txt|log|sh|ps1|backup)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Configuración de PHP
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 30
+php_value memory_limit 256M
+
+# Headers de seguridad
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options SAMEORIGIN
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Configuración de CORS para API
+<FilesMatch "\.(php)$">
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</FilesMatch>
+
+# Cache para archivos estáticos
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+    ExpiresActive on
+    ExpiresDefault "access plus 1 month"
+    Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>
+
+# ============================================
+# URL REWRITING - URLs Limpias (sin .php)
+# ============================================
+
+# Redirigir si se accede con .php visible
+RewriteCond %{THE_REQUEST} ^[A-Z]+\ /([^?\ ]+)\.php
+RewriteRule ^([^.]+)\.php$ /$1 [R=301,L,NE]
+
+# Evitar loops infinitos
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+
+# Rutas específicas para páginas principales (sin duplicar /pages/)
+RewriteRule ^dashboard$ /pages/dashboard.php [L,QSA]
+RewriteRule ^wallet$ /pages/wallet/wallet.php [L,QSA]
+RewriteRule ^receive$ /pages/wallet/receive.php [L,QSA]
+RewriteRule ^send$ /pages/wallet/send.php [L,QSA]
+RewriteRule ^devices$ /pages/wallet/devices.php [L,QSA]
+RewriteRule ^messages$ /pages/messages.php [L,QSA]
+RewriteRule ^communities$ /pages/communities.php [L,QSA]
+RewriteRule ^governance$ /pages/governance.php [L,QSA]
+RewriteRule ^profile$ /pages/profile.php [L,QSA]
+RewriteRule ^login$ /pages/login.php [L,QSA]
+RewriteRule ^register$ /pages/register.php [L,QSA]
+RewriteRule ^learn$ /pages/learn.php [L,QSA]
+RewriteRule ^token$ /pages/token.php [L,QSA]
+RewriteRule ^donations$ /pages/donations.php [L,QSA]
+RewriteRule ^contact$ /contact/contact.php [L,QSA]
+RewriteRule ^membership$ /membership/membership.php [L,QSA]
+RewriteRule ^swap$ /pages/swap.php [L,QSA]
+
+# Agregar .php internamente para otros archivos
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# Error Pages
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html

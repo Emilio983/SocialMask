@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Wallet - Zcash</title>
+    <link rel="stylesheet" href="send.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Mi Wallet Zcash</h1>
+        
+        <div class="info" id="userInfo">
+            Cargando...
+        </div>
+
+        <div class="form-group">
+            <label>Tu dirección para recibir ZEC:</label>
+            <input type="text" id="myAddress" readonly style="background: #f5f5f5;">
+        </div>
+
+        <h2 style="margin-top: 30px;">Enviar ZEC</h2>
+
+        <div class="form-group">
+            <label>1. TXID de Binance (del depósito que recibiste)</label>
+            <input type="text" id="txid" placeholder="Pega el TXID aquí">
+            <button id="fetchBtn" style="margin-top: 10px;">Buscar mis fondos</button>
+        </div>
+
+        <div id="utxoResult"></div>
+
+        <div id="sendForm" style="display: none;">
+            <div class="form-group">
+                <label>2. Dirección de destino</label>
+                <input type="text" id="toAddress" placeholder="tex1... o t1...">
+            </div>
+
+            <div class="form-group">
+                <label>3. Cantidad (ZEC)</label>
+                <input type="number" step="0.00000001" id="amount" placeholder="0.32">
+            </div>
+
+            <button id="sendBtn">Enviar ZEC</button>
+        </div>
+
+        <div id="result"></div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="logout()" style="background: #666;">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

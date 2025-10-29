@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Send ZEC</title>
+    <link rel="stylesheet" href="send.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Send ZEC (Direct)</h1>
+        
+        <div class="info">
+            <strong>Tu dirección:</strong> t1Y3qrYxrrTqBzMuC7gg3K27yVQPC9HuFae<br>
+            <strong>Tu User ID:</strong> fe635c47-ab11-4c20-9324-e9fd5317adc6
+        </div>
+
+        <div class="form-group">
+            <label>1. TXID de Binance (Transaction ID del depósito)</label>
+            <input type="text" id="txid" placeholder="Pega aquí el TXID de tu depósito de Binance">
+            <button id="fetchBtn" style="margin-top: 10px;">Buscar mis fondos</button>
+        </div>
+
+        <div id="utxoResult"></div>
+
+        <div class="form-group" id="sendForm" style="display: none;">
+            <label>2. Dirección de destino (Binance)</label>
+            <input type="text" id="toAddress" placeholder="tex1...">
+            
+            <label style="margin-top: 15px;">3. Cantidad (ZEC)</label>
+            <input type="number" step="0.00000001" id="amount" placeholder="0.32">
+            
+            <button id="sendBtn" style="margin-top: 20px;">Enviar ZEC</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script src="send.js"></script>
+</body>
+</html>

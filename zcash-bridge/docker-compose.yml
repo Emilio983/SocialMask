@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  zcash-bridge:
+    build: .
+    container_name: zcash-bridge
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LIGHTWALLETD_HOST=${LIGHTWALLETD_HOST:-mainnet.lightwalletd.com}
+      - LIGHTWALLETD_PORT=${LIGHTWALLETD_PORT:-9067}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - zcash-network
+
+networks:
+  zcash-network:
+    driver: bridge

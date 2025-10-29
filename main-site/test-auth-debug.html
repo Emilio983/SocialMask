@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Test Auth Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            background: #000;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .output {
+            background: #000;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            border: 1px solid #444;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Auth System Debug Page</h1>
+    <p>Timestamp: <span id="timestamp"></span></p>
+
+    <div class="test">
+        <h2>Test 1: Generate UUID</h2>
+        <button onclick="testGenerateUUID()">Test UUID Generation</button>
+        <div id="uuid-output" class="output"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 2: Login Start (Passkey)</h2>
+        <button onclick="testLoginStart()">Test Login Start</button>
+        <div id="login-output" class="output"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 3: Register Start</h2>
+        <input type="text" id="test-username" placeholder="testuser" value="testuser123" style="padding: 8px; margin-right: 10px;">
+        <button onclick="testRegisterStart()">Test Register Start</button>
+        <div id="register-output" class="output"></div>
+    </div>
+
+    <div class="test">
+        <h2>Test 4: Check JavaScript Files</h2>
+        <button onclick="checkFiles()">Check File Versions</button>
+        <div id="files-output" class="output"></div>
+    </div>
+
+    <script>
+        // Show timestamp
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+
+        // UUID generation function
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function testGenerateUUID() {
+            const output = document.getElementById('uuid-output');
+            const uuid = generateUUID();
+            output.innerHTML = `<span class="success">✓ UUID Generated: ${uuid}</span>\n`;
+            output.innerHTML += `Format valid: ${/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid) ? '✓ YES' : '✗ NO'}`;
+        }
+
+        async function testLoginStart() {
+            const output = document.getElementById('login-output');
+            output.innerHTML = 'Testing login start...\n';
+
+            try {
+                const challengeId = generateUUID();
+                output.innerHTML += `Generated challengeId: ${challengeId}\n`;
+
+                const response = await fetch('/api/auth/passkey_start.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ challengeId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    output.innerHTML += `<span class="success">✓ SUCCESS</span>\n`;
+                    output.innerHTML += `Response: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    output.innerHTML += `<span class="error">✗ FAILED</span>\n`;
+                    output.innerHTML += `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                output.innerHTML += `<span class="error">✗ EXCEPTION: ${error.message}</span>`;
+            }
+        }
+
+        async function testRegisterStart() {
+            const output = document.getElementById('register-output');
+            const username = document.getElementById('test-username').value;
+            output.innerHTML = 'Testing register start...\n';
+
+            try {
+                const challengeId = generateUUID();
+                output.innerHTML += `Generated challengeId: ${challengeId}\n`;
+                output.innerHTML += `Username: ${username}\n`;
+
+                const response = await fetch('/api/auth/passkey_register_start.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, challengeId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    output.innerHTML += `<span class="success">✓ SUCCESS</span>\n`;
+                    output.innerHTML += `Response: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    output.innerHTML += `<span class="error">✗ FAILED</span>\n`;
+                    output.innerHTML += `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                output.innerHTML += `<span class="error">✗ EXCEPTION: ${error.message}</span>`;
+            }
+        }
+
+        async function checkFiles() {
+            const output = document.getElementById('files-output');
+            output.innerHTML = 'Checking JavaScript files...\n';
+
+            const files = [
+                '/assets/js/auth-passkeys-v4.js',
+                '/assets/js/auth-register-passkeys-v4.js'
+            ];
+
+            for (const file of files) {
+                try {
+                    const response = await fetch(file + '?t=' + Date.now());
+                    const text = await response.text();
+
+                    const hasGenerateUUID = text.includes('function generateUUID()');
+                    const hasChallengeId = text.includes('challengeId');
+
+                    output.innerHTML += `\nFile: ${file}\n`;
+                    output.innerHTML += `  Size: ${text.length} bytes\n`;
+                    output.innerHTML += `  Has generateUUID(): ${hasGenerateUUID ? '✓ YES' : '✗ NO'}\n`;
+                    output.innerHTML += `  Has challengeId: ${hasChallengeId ? '✓ YES' : '✗ NO'}\n`;
+                } catch (error) {
+                    output.innerHTML += `\n<span class="error">✗ Error loading ${file}: ${error.message}</span>\n`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
